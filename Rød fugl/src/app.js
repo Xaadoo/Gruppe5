@@ -5,20 +5,27 @@ class Innlogging extends React.Component {
   constructor(props) {
     super(props);
 
-    this.Brukernavn = {value: ""};
-    this.Passord = {value: ""};
+    this.state = {
+      brukernavn: "",
+      passord: ""
+    };
+
 
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleChange = this.handleChange.bind(this);
+    this.handleBrukernavnChange = this.handleBrukernavnChange.bind(this);
+    this.handlePassordChange = this.handlePassordChange.bind(this);
   }
 
-  handleChange(event) {
-    this.setState({value: event.target.value});
-    this.setState({value: event.target.value});
+  handleBrukernavnChange(event) {
+    this.setState({brukernavn: event.target.value});
+  }
+
+  handlePassordChange(event) {
+    this.setState({passord: event.target.value});
   }
 
   handleSubmit(event) {
-    alert("A log in request was sent! Brukernavn: " + this.Brukernavn.value + "Passord: " + this.Passord.value);
+    alert("A log in request was sent!\nBrukernavn: " + this.state.brukernavn + " Passord: " + this.state.passord);
     event.preventdeDefault();
   }
 
@@ -27,9 +34,10 @@ class Innlogging extends React.Component {
       <form onSubmit={this.handleSubmit}>
         <label>
           Brukernavn:
-          <input type="text" value={this.Brukernavn.value} onChange={this.handleChange} />
+          <input type="text" value={this.state.brukernavn.value} onChange={this.handleBrukernavnChange} />
+          <br>
           Passord:
-          <input type="password" value={this.Passord.value} onChange={this.handleChange} />
+          <input type="password" value={this.state.passord.value} onChange={this.handlePassordChange} />
         </label>
         <input type="submit" value="submit" />
       </form>
