@@ -1,6 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
+let {InnloggingService} = require("./innloggingService")
+
 class Innlogging extends React.Component {
   constructor(props) {
     super(props);
@@ -24,8 +26,8 @@ class Innlogging extends React.Component {
   }
 
   handleSubmit(event) {
-    alert("A log in request was sent!\nBrukernavn: " + this.state.brukernavn + " Passord: " + this.state.passord);
-    event.preventdeDefault();
+    loggInnMedlem();
+    event.preventDefault();
   }
 }
 
@@ -38,14 +40,14 @@ class InnloggingMedlem extends Innlogging {
     return(
     <div>
       <h1> Medlems Innlogging </h1>
-      <form onSubmit={this.handleSubmit}>
+      <form onSubmit={InnloggingService.loggInnMedlem}>
         <label>
           Brukernavn:
-          <input type="text" value={this.state.brukernavn.value} onChange={this.handleBrukernavnChange} />
+          <input type="text" id="brukernavnMedlem" value={this.state.brukernavn.value} onChange={this.handleBrukernavnChange} />
           Passord:
-          <input type="password" value={this.state.passord.value} onChange={this.handlePassordChange} />
+          <input type="password" id="passordMedlem" value={this.state.passord.value} onChange={this.handlePassordChange} />
         </label>
-        <input type="submit" value="submit" />
+        <input type="submit" id="loggInnMedlem" value="Logg inn" />
       </form>
     </div>
     );
@@ -64,11 +66,11 @@ class InnloggingAdministrator extends Innlogging {
       <form onSubmit={this.handleSubmit}>
         <label>
           Brukernavn:
-          <input type="text" value={this.state.brukernavn.value} onChange={this.handleBrukernavnChange} />
+          <input type="text" id="brukernavnAdmin" value={this.state.brukernavn.value} onChange={this.handleBrukernavnChange} />
           Passord:
-          <input type="password" value={this.state.passord.value} onChange={this.handlePassordChange} />
+          <input type="password" id="passordAdmin" value={this.state.passord.value} onChange={this.handlePassordChange} />
         </label>
-        <input type="submit" value="submit" />
+        <input type="submit" id="loggInnAdmin" value="Logg inn" />
       </form>
     </div>
     );
