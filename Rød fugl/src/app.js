@@ -14,7 +14,7 @@ class StartSide extends React.Component {
   }
 }
 
-class InnloggingMedlem extends React.Component {
+class Innlogging extends React.Component {
   constructor(props) {
     super(props);
 
@@ -22,7 +22,6 @@ class InnloggingMedlem extends React.Component {
       brukernavn: "",
       passord: ""
     };
-
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleBrukernavnChange = this.handleBrukernavnChange.bind(this);
@@ -41,9 +40,17 @@ class InnloggingMedlem extends React.Component {
     alert("A log in request was sent!\nBrukernavn: " + this.state.brukernavn + " Passord: " + this.state.passord);
     event.preventdeDefault();
   }
+}
+
+class InnloggingMedlem extends Innlogging {
+  constructor(props) {
+    super(props);
+  }
 
   render() {
     return(
+    <div>
+      <h1> Medlems Innlogging </h1>
       <form onSubmit={this.handleSubmit}>
         <label>
           Brukernavn:
@@ -53,17 +60,31 @@ class InnloggingMedlem extends React.Component {
         </label>
         <input type="submit" value="submit" />
       </form>
+    </div>
     );
   }
 }
 
-class InnloggingAdministrator extends InnloggingMedlem {
+class InnloggingAdministrator extends Innlogging {
   constructor(props) {
     super(props);
   }
-  
+
   render() {
-    return (<div>InnloggingAdministrator</div>);
+    return (
+    <div>
+      <h1> Administrator Innlogging </h1>
+      <form onSubmit={this.handleSubmit}>
+        <label>
+          Brukernavn:
+          <input type="text" value={this.state.brukernavn.value} onChange={this.handleBrukernavnChange} />
+          Passord:
+          <input type="password" value={this.state.passord.value} onChange={this.handlePassordChange} />
+        </label>
+        <input type="submit" value="submit" />
+      </form>
+    </div>
+    );
   }
 }
 
