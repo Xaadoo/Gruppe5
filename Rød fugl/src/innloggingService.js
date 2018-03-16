@@ -19,10 +19,19 @@ let brukernavnAdminInput = document.getElementById("brukernavnAdmin");
 let passordAdminInput = document.getElementById("passordAdmin");
 
 class InnloggingService {
-  loggInnMedlem() {
-    connection.query("select * from Medlemmer where (Brukernavn like ? and Passord like ?) order by Brukernavn", ["%" + brukernavnMedlemInput.value + "%", "%" + passordMedlemInput.value + "%"], (error, result) => {
-      if (error) throw error;
-      console.log(result);
+  loggInn(brukernavn, passord) {
+    return new Promise ((resolve, reject) => {
+
+      connection.query("SELECT CASE WHEN EXIST ( SELECT * FROM Medlemmer WHERE Brukernavn = ?, Passord = ? ) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END", [brukernavn, passord], (error, result) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        console.log(result);
+        resolve(result);
+
+      });
     });
   }
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-let {InnloggingService} = require("./innloggingService")
+import { InnloggingService } from "./innloggingService.js"
 
 class Innlogging extends React.Component {
   constructor(props) {
@@ -26,58 +26,32 @@ class Innlogging extends React.Component {
   }
 
   handleSubmit(event) {
-    loggInnMedlem();
+    InnloggingService.loggInn();
     event.preventDefault();
-  }
-}
-
-class InnloggingMedlem extends Innlogging {
-  constructor(props) {
-    super(props);
   }
 
   render() {
     return(
-    <div>
-      <h1> Medlems Innlogging </h1>
-      <form onSubmit={InnloggingService.loggInnMedlem}>
-        <label>
-          Brukernavn:
-          <input type="text" id="brukernavnMedlem" value={this.state.brukernavn.value} onChange={this.handleBrukernavnChange} />
-          Passord:
-          <input type="password" id="passordMedlem" value={this.state.passord.value} onChange={this.handlePassordChange} />
-        </label>
-        <input type="submit" id="loggInnMedlem" value="Logg inn" />
-      </form>
-    </div>
-    );
-  }
-}
-
-class InnloggingAdministrator extends Innlogging {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-    <div>
-      <h1> Administrator Innlogging </h1>
-      <form onSubmit={this.handleSubmit}>
-        <label>
-          Brukernavn:
-          <input type="text" id="brukernavnAdmin" value={this.state.brukernavn.value} onChange={this.handleBrukernavnChange} />
-          Passord:
-          <input type="password" id="passordAdmin" value={this.state.passord.value} onChange={this.handlePassordChange} />
-        </label>
-        <input type="submit" id="loggInnAdmin" value="Logg inn" />
-      </form>
-    </div>
+      <div>
+        <h1> Innlogging </h1>
+        <form onSubmit={this.handleSubmit}>
+          <label>
+            <div>
+            Brukernavn:
+            <input type="text" id="brukernavnMedlem" value={this.state.brukernavn.value} onChange={this.handleBrukernavnChange} />
+            </div>
+            <div>
+            Passord:
+            <input type="password" id="passordMedlem" value={this.state.passord.value} onChange={this.handlePassordChange} />
+            </div>
+          </label>
+          <input type="submit" id="loggInnMedlem" value="Logg inn" />
+        </form>
+      </div>
     );
   }
 }
 
 module.exports = {
-  InnloggingMedlem: InnloggingMedlem,
-  InnloggingAdministrator: InnloggingAdministrator
+  Innlogging: Innlogging
 }
