@@ -46,6 +46,17 @@ class ErrorMessage extends React.Component<{}> {
 }
 let errorMessage: ?ErrorMessage;
 
+class StartSide extends React.Component {
+  render() {
+    return (
+      <div>
+        Valg:
+        <Link to="/innlogging">Innlogging</Link>
+      </div>
+    );
+  }
+}
+
 class Menu extends React.Component<{}> {
   render() {
     let signedInUser = userService.getSignedInUser();
@@ -75,7 +86,7 @@ class Menu extends React.Component<{}> {
 
 let menu: ?Menu;
 
-class SignIn extends React.Component<{}> {
+class Innlogging extends React.Component<{}> {
   refs: {
     signInUsername: HTMLInputElement,
     signInPassword: HTMLInputElement,
@@ -97,7 +108,7 @@ class SignIn extends React.Component<{}> {
     if(menu) menu.forceUpdate();
 
     this.refs.signInButton.onclick = () => {
-      userService.signIn(this.refs.signInUsername.value, this.refs.signInPassword.value).then(() => {
+      userService.signIn(this.refs.signInUsername.value).then(() => {
         history.push('/');
         console.log("Logget inn confirmed!");
       }).catch((error: Error) => {
@@ -109,7 +120,7 @@ class SignIn extends React.Component<{}> {
 
 class Home extends React.Component<{}> {
   render() {
-    return <div><h1>Velkommen til Rød Fugl</h1></div>
+    return <div>Home</div>
   }
 }
 
@@ -119,7 +130,7 @@ class SignOut extends React.Component<{}> {
   };
 
   render() {
-    return (<div><button ref="signOut">Press this button to sign out</button></div>);
+    return (<div><button ref="signOut">SignOut</button></div>);
   };
 
   componentDidMount() {
@@ -141,8 +152,9 @@ if(root) {
       <div>
         <ErrorMessage />
         <Menu />
+        <StartSide />
         <Switch>
-          <Route exact path="/signin" component={SignIn} />
+          <Route exact path="/innlogging" component={Innlogging} />
           <Route exact path='/signout' component={SignOut} />
           <Route exact path='/' component={Home} />
         </Switch>
