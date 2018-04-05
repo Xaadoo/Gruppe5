@@ -4,8 +4,9 @@ import ReactDOM from 'react-dom';
 import { Link, NavLink, HashRouter, Switch, Route } from 'react-router-dom';
 import createHashHistory from 'history/createHashHistory';
 const history = createHashHistory();
-import { User, userService, Eventa, eventService } from './innloggingService';
+import { userService, eventService, memberService } from './innloggingService';
 //skrev Eventa fordi Event er et reservert ord
+
 class ErrorMessage extends React.Component<{}> {
   refs: {
     closeButton: HTMLButtonElement
@@ -98,7 +99,9 @@ class SignIn extends React.Component<{}> {
   }
 
   componentDidMount() {
-    if(menu) menu.forceUpdate();
+    if(menu) {
+        menu.forceUpdate();
+    }
 
     this.refs.signInButton.onclick = () => {
       userService.signIn(this.refs.signInUsername.value, this.refs.signInPassword.value).then(() => {
@@ -112,13 +115,36 @@ class SignIn extends React.Component<{}> {
 }
 
 class Home extends React.Component<{}> {
-  render() {
-    return <div>
-              <h1>Velkommen til Rød Fugl</h1>
-                her skal det være en kalender, sjekk wireframes
+    constructor() {
+        super();
+        this.members = [];
+    }
+    render() {
+        let listMembers= [];
+        for(let member of this.members) {
+            listMembers.push(<li key={member.ID}>{member.Fornavn}</li>) //use key prop for optimalization
+        }
+
+        return <div>
+            <h1>Hjem</h1><br/>
+            <div>
+                {listMembers}
             </div>
-  }
+        </div>;
+    }
+
+
+    componentDidMount() {
+        memberService.getMembers().then((members) => {
+            this.members = members;
+            this.forceUpdate();
+        }).catch((error) => {
+            if (errorMessage) errorMessage.set('Error getting members: ' + error.message);
+        });
+        memberList = this;
+    }
 }
+let memberList;
 
 class AddEvent extends React.Component<{}> {
   refs: {
@@ -174,74 +200,52 @@ class AddEvent extends React.Component<{}> {
         history.push('/addevent/'+id);
         console.log("Arrangmenet lagt til!");
       }).catch((error: Error) => {
-        if(errorMessage) errorMessage.set("Invalid data");
+        if(errorMessage) errorMessage.set("Error adding the event.");
       });
     };
   }
   componentWillUnmount() {
-    noteList = null;
+    eventList = null;
   }
 }
-let eventList;
-// class EventList extends React.Component<{}> {
-  // constructor() {
-  //   super();
-  //
-  //   this.events = [];
-  // }
-//
-  //   render() {
-  //     let listEvents = [];
-  //     for(let eventa of this.events) {
-  //       listEvents.push(<li key={eventa.id}><NavLink activeStyle={{color: 'red'}} to={'/event/'+eventa.id}>{eventa.eventName}</NavLink></li>);
-  //     }
-  // }
-// }
 
 class Event extends React.Component<{}> {
-  // constructor(props) {
-  //   super(props);
-  //
-  //   this.id = props.match.params.id;
-  //   this.eventa = {};
-  // }
+
   constructor() {
     super();
-
     this.events = [];
   }
   render() {
     let listEvents = [];
     for(let eventa of this.events) {
-      listEvents.push(<li key={eventa.id}><NavLink activeStyle={{color: 'red'}} to={'/event/'+eventa.id}>{eventa.eventName}</NavLink></li>);
+        listEvents.push(<li key={eventa.idArrangementer}>{eventa.Arrangement_Navn}</li>) //bruker key prop for optimalisering
     }
 
-    return (
-            <div>
-              <h1>Arrangement</h1><br />
-              <ul>
-                {listEvents}
-              </ul>
-              <button ref="goToEventButton">Opprett arrangement</button>
-            </div>
-      );
+      return <div>
+          <h1>Arrangement</h1><br/>
+          <div>
+              {listEvents}
+          </div>
+          <button ref="goToEventButton">Opprett arrangement</button>
+      </div>;
   }
 
-  update() {
-    eventService.getEvents().then((eventa) => {
-      this.events = events;
-      this.forceUpdate();
-    }).catch((error) => {
-      if(errorMessage) errorMessage.set('Error getting notes: ' + error.message);
-    });
-  }
+
   componentDidMount() {
-    this.refs.goToEventButton.onclick = () => {
-        history.push('/addevent');
-        console.log("Hoppet til addevent");
-    };
+      eventService.getEvents().then((events) => {
+          this.events = events;
+          this.forceUpdate();
+      }).catch((error) => {
+          if (errorMessage) errorMessage.set('Error getting notes: ' + error.message);
+      });
+      eventList = this;
+      this.refs.goToEventButton.onclick = () => {
+          history.push('/addevent');
+          console.log("Hoppet til addevent");
+      };
   }
 }
+let eventList;
 
 class Crew extends React.Component<{}> {
   render() {
@@ -272,7 +276,7 @@ class AddRole extends React.Component<{}> {
     roleName: HTMLInputElement,
     roleDescription: HTMLInputElement,
     addRoleButton: HTMLButtonElement
-  }
+  };
   render() {
     return <div>
               <h1>Opprett rolle</h1><br />
@@ -296,7 +300,6 @@ class MyPage extends React.Component<{}> {
             </div>
     )
   }
-
 
   componentDidMount() {}
 
@@ -344,7 +347,7 @@ if(root) {
           <Route exact path='/crew' component={Crew} />
           <Route exact path='/roles' component={Roles} />
           <Route exact path='/addrole' component={AddRole} />
-          <Route exact path='/mypage' component={MyPage} />
+          <Route exact path='/mypage:id' component={MyPage} />
           <Route exact path='/' component={Home} />
         </Switch>
       </div>

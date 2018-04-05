@@ -33,6 +33,56 @@ class User {
   firstName: string;
   password: string;
 }
+// Class that performs database queries related to members
+class MemberService {
+    getMembers() : Promise<void> {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM Medlemmer', (error, result) => {
+                if(error) {
+                    reject(error);
+                    return;
+                }
+                resolve(result);
+            });
+        });
+    }
+    getMember(id) : Promise<void> {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM Medlemmer Where id = ?', [id], (error, result) => {
+                if(error) {
+                    reject(error);
+                    return;
+                }
+                resolve(result[0]);
+            });
+        });
+    }
+
+    changeMembers(id, fornavn, text) : Promise<void>{
+        return new Promise((resolve, reject) => {
+            connection.query('UPDATE Medlemmer SET fornavn = ?, text = ? WHERE id = ?', [fornavn, text, id], (error, result) => {
+                if(error) {
+                    reject(error);
+                    return;
+                }
+                resolve(result);
+            });
+        });
+    }
+    deleteMember(id) : Promise<void> {
+        return new Promise((resolve, reject) => {
+            connection.query("DELETE FROM Medlemmer Where ID = ?", [id], (error, result) => {
+                if(error) {
+                    reject(error);
+                    return;
+                }
+                resolve(result);
+            });
+        });
+    }
+}
+
+let memberService = new MemberService();
 
 class UserService {
   signIn(username: string, password: string): Promise<void> {
@@ -104,21 +154,20 @@ class Eventa {
 }
 
 class EventService {
-  getEvents() {
+  getEvents() : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query('SELECT * FROM Arrangementer', (error, result) => {
         if(error) {
           reject(error);
           return;
         }
-
         resolve(result);
+        });
       });
-    });
-  }
+    }
 
   addEvent(
-    eventName: string, zipCode: number,
+    eventName: string, zipCode: string,
     eventStartDate: string,
     eventEndDate: string,
     eventDescription: string,
@@ -153,7 +202,7 @@ class EventService {
 }
 let eventService = new EventService();
 //skrev Eventa fordi Event er et reservert ord
-  export { User, userService, Eventa, eventService };
+  export { User, userService, Eventa, eventService, memberService };
 
 // class InnloggingService {
 //   loggInn(brukernavn, passord) {
