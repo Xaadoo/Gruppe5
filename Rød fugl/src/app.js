@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import { Link, NavLink, HashRouter, Switch, Route } from 'react-router-dom';
 import createHashHistory from 'history/createHashHistory';
 const history = createHashHistory();
+
 import { userService, eventService, memberService, roleService, mannskapService, forgottonPasswordService } from './innloggingService';
 //skrev Eventa fordi Event er et reservert ord
 
@@ -453,6 +454,7 @@ class SignOut extends React.Component<{}> {
   };
 
   render() {
+
     return (<div><button ref="signOut">Press this button to sign out</button></div>);
   };
 
