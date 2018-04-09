@@ -34,10 +34,143 @@ class User {
   password: string;
 }
 
-class UserService {
-  signIn(username: string): Promise<void> {
+class ForgottonPasswordService {
+  getUserFromEmail(email: string) : Promise<void> {
+      return new Promise((resolve, reject) => {
+        connection.query("SELECT * FROM Medlemmer WHERE Epost = ?", [email], (error, result) => {
+          if(error) {
+            reject(error);
+            return;
+          }
+          resolve(result[0]);
+        });
+      });
+  }
+
+  getUserFromEmailCheck(email: string) : Promise<void> {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM Medlemmer where Brukernavn=?', [username], (error, result) => {
+      connection.query("SELECT * FROM Medlemmer WHERE BINARY Epost = ?", [email], (error, result) => {
+        if(error) {
+          reject(error);
+          return;
+        }
+        if(result.length!=1) {
+          reject(new Error('Result length was not 1'))
+          return;
+        }
+
+        resolve();
+      });
+    });
+  }
+
+  // Dette er kode fra en annen javascript fil for å sende mail, den er ikke koblet til databasen
+  sendEmail(emailTo, validatingCode, nameto) {
+    emailjs.send("default_service","glemtpassord",{to_name: nameto, from_name: "Rød Fugl", to_email: emailTo, message_html: "Her er din validerings kode: " + validatingCode})
+  }
+
+  changePassword(email: string, password: string) : Promise<void> {
+    return new Promise((resolve, reject) => {
+      connection.query("UPDATE Medlemmer SET Passord = ? WHERE Epost = ?", [password, email], (error, result) => {
+        if(error) {
+          reject(error);
+          return;
+        }
+        resolve();
+      });
+    });
+  }
+}
+let forgottonPasswordService = new ForgottonPasswordService;
+
+class RoleService {
+    getRoles() : Promise<void> {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM Roller', (error, result) => {
+                if(error) {
+                    reject(error);
+                    return;
+                }
+                resolve(result);
+            });
+        });
+    }
+}
+let roleService = new RoleService;
+
+class MannskapService {
+  getShiftTemplate() : Promise<void> {
+    return new Promise((resolve, reject) => {
+      connection.query('SELECT * FROM Mannskap', (error, result) => {
+        if(error) {
+          reject(error);
+          return;
+          }
+          resolve(result);
+          });
+      });
+  }
+}
+let mannskapService = new MannskapService;
+// Class that performs database queries related to members
+class MemberService {
+    getMembers() : Promise<void> {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM Medlemmer', (error, result) => {
+                if(error) {
+                    reject(error);
+                    return;
+                }
+                resolve(result);
+            });
+        });
+    }
+    getMember(id) : Promise<void> {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM Medlemmer Where id = ?', [id], (error, result) => {
+                if(error) {
+                    reject(error);
+                    return;
+                }
+                resolve(result[0]);
+            });
+        });
+    }
+
+    changeMembers(id, fornavn, text) : Promise<void>{
+        return new Promise((resolve, reject) => {
+            connection.query('UPDATE Medlemmer SET fornavn = ?, text = ? WHERE id = ?', [fornavn, text, id], (error, result) => {
+                if(error) {
+                    reject(error);
+                    return;
+                }
+                resolve(result);
+            });
+        });
+    }
+    deleteMember(id) : Promise<void> {
+        return new Promise((resolve, reject) => {
+            connection.query("DELETE FROM Medlemmer Where ID = ?", [id], (error, result) => {
+                if(error) {
+                    reject(error);
+                    return;
+                }
+                resolve(result);
+            });
+        });
+    }
+}
+
+let memberService = new MemberService();
+
+class UserService {
+  signIn(username: string, password: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      connection.query( "SELECT * FROM Medlemmer WHERE BINARY Brukernavn=? AND BINARY Passord=?", [username, password], (error, result) => {
+      // connection.query( 'SELECT EXISTS (SELECT * FROM Medlemmer WHERE Brukernavn = ? AND Passord = ?', [username, password], (error, result) => {
+      // connection.query('SELECT * FROM Medlemmer where Brukernavn=?', [username], (error, result) => {
+      // connection.query('SELECT CASE WHEN EXIST ( SELECT * FROM Medlemmer WHERE Brukernavn = ?, Passord = ? ) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END', [username, password], (error, result) => {
+
         if(error) {
           reject(error);
           return;
@@ -82,22 +215,71 @@ class UserService {
 
   let userService = new UserService();
 
-  export { User, userService };
+class Eventa {
+  //skrev Eventa fordi Event er et reservert ord
+  id: number;
+  eventName: string;
+  zipCode: number;
+  eventStartDate: string;
+  eventEndDate: string;
+  eventDescription: string;
+  startTime: string;
+  endTime: string;
+  meetingDate: string;
+  meetingPoint: string;
+  meetingTime: string;
+  contactPerson: string;
+}
 
-// class InnloggingService {
-//   loggInn(brukernavn, passord) {
-//     return new Promise ((resolve, reject) => {
-//
-//       connection.query("SELECT CASE WHEN EXIST ( SELECT * FROM Medlemmer WHERE Brukernavn = ?, Passord = ? ) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END", [brukernavn, passord], (error, result) => {
-//         if (error) {
-//           reject(error);
-//           return;
-//         }
-//
-//         console.log(result);
-//         resolve(result);
-//
-//       });
-//     });
-//   }
-// }
+class EventService {
+  getEvents() : Promise<void> {
+    return new Promise((resolve, reject) => {
+      connection.query('SELECT * FROM Arrangementer', (error, result) => {
+        if(error) {
+          reject(error);
+          return;
+        }
+        resolve(result);
+        });
+      });
+    }
+
+  addEvent(
+      eventName: string,
+      zipCode: string,
+      eventStartDate: Date,
+      eventEndDate: Date,
+      eventDescription: string,
+      startTime: string,
+      endTime: string,
+      meetingDate: Date,
+      meetingPoint: string,
+      meetingTime: string,
+      contactPerson: string)
+    : Promise<void> {
+    return new Promise((resolve, reject) => {
+      connection.query(
+          'INSERT INTO Arrangementer (Postnummer, Beskrivelse, StartDato, SluttDato, StartTid, SluttTid, OppmoteDato,  OppmoteTid, OppmoteSted, EksternKontakt, Arrangement_Navn) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [zipCode, eventDescription, eventStartDate, eventEndDate, startTime, endTime, meetingDate, meetingTime, meetingPoint, contactPerson, eventName], (error, result) => {
+              // skriv dette i sluttrapporten: Det var vanskelig å få til denne spørringen da vi slurva med datatyper.
+      // connection.query( 'SELECT EXISTS (SELECT * FROM Medlemmer WHERE Brukernavn = ? AND Passord = ?', [username, password], (error, result) => {
+      // connection.query('SELECT * FROM Medlemmer where Brukernavn=?', [username], (error, result) => {
+      // connection.query('SELECT CASE WHEN EXIST ( SELECT * FROM Medlemmer WHERE Brukernavn = ?, Passord = ? ) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END', [username, password], (error, result) => {
+
+              if(error) {
+                  reject(error);
+                  return;
+              }
+              // if(typeof(result.insertId) !=='number') {
+              //   reject(new Error('Could not read insertId'))
+              //   return;
+              // }
+
+              resolve(result[1]);
+          });
+    });
+  }
+}
+let eventService = new EventService();
+//skrev Eventa fordi Event er et reservert ord
+  export { User, userService, Eventa, eventService, memberService, roleService, forgottonPasswordService };
