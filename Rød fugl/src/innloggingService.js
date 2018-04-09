@@ -98,10 +98,18 @@ class RoleService {
 }
 let roleService = new RoleService;
 
+//jobb med CrewService: Joine tabeller?
+class CrewService {
+  getShiftTemplate() : Promise<void> {
+    return new Promise((resolve, reject) => {
+      connection.query('SELECT Mannskap.Mann_id, Mannskap.Navn, Roller.rolle_id, Roller.Rolle FROM Mannskap INNER JOIN Roller ON Mannskap.Mann_id = Roller.rolle_id;',
+          (error, result) => {
+
 class MannskapService {
   getShiftTemplate() : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query('SELECT * FROM Mannskap', (error, result) => {
+
         if(error) {
           reject(error);
           return;
@@ -111,7 +119,11 @@ class MannskapService {
       });
   }
 }
+
+let crewService = new CrewService;
+
 let mannskapService = new MannskapService;
+
 // Class that performs database queries related to members
 class MemberService {
     getMembers() : Promise<void> {
@@ -244,6 +256,31 @@ class EventService {
       });
     }
 
+  getEvent(idArrangementer) : Promise<void> {
+      return new Promise((resolve, reject) => {
+          connection.query('SELECT * FROM Arrangementer Where idArrangementer = ?', [idArrangementer], (error, result) => {
+              if (error) {
+                  reject(error);
+                  return;
+              }
+              resolve(result[0]);
+          });
+      });
+  }
+changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDato, SluttDato, StartTid, SluttTid, Oppmotedato, OppmoteSted, OppmoteTid, EksternKontakt) : Promise<void> {
+    return new Promise((resolve, reject) => {
+        connection.query('UPDATE Arrangementer SET Arrangement_Navn = ?, Beskrivelse = ?, Postnummer = ?, StartDato = ?, SluttDato = ?, StartTid = ?, SluttTid = ?, Oppmotedato = ?, OppmoteSted = ?, OppmoteTid = ?, EksternKontakt = ? WHERE idArrangementer = ?', [Arrangement_Navn, Beskrivelse, Postnummer, StartDato, SluttDato, StartTid, SluttTid, Oppmotedato, OppmoteSted, OppmoteTid, EksternKontakt, idArrangementer], (error, result) => {
+            if(error) {
+                reject(error);
+                return;
+            }
+            resolve(result);
+        });
+    });
+}
+
+
+
   addEvent(
       eventName: string,
       zipCode: string,
@@ -270,6 +307,7 @@ class EventService {
                   reject(error);
                   return;
               }
+
               // if(typeof(result.insertId) !=='number') {
               //   reject(new Error('Could not read insertId'))
               //   return;
@@ -282,4 +320,6 @@ class EventService {
 }
 let eventService = new EventService();
 //skrev Eventa fordi Event er et reservert ord
-  export { User, userService, Eventa, eventService, memberService, roleService, forgottonPasswordService };
+
+  export { User, userService, Eventa, eventService, memberService, roleService, crewService, forgottonPasswordService };
+
