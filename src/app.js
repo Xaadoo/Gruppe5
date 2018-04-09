@@ -4,7 +4,8 @@ import ReactDOM from 'react-dom';
 import { Link, NavLink, HashRouter, Switch, Route } from 'react-router-dom';
 import createHashHistory from 'history/createHashHistory';
 const history = createHashHistory();
-import { userService, eventService, memberService } from './innloggingService';
+import { userService, eventService, memberService, roleService, crewService } from './innloggingService';
+
 //skrev Eventa fordi Event er et reservert ord
 
 class ErrorMessage extends React.Component<{}> {
@@ -85,15 +86,37 @@ class SignIn extends React.Component<{}> {
     signInUsername: HTMLInputElement,
     signInPassword: HTMLInputElement,
     signInButton: HTMLButtonElement
-  }
+  };
 
   render() {
     return (
-      <div>
-        <h1> Innlogging </h1>
-            <input type="text" ref="signInUsername" />
-            <input type="password" ref="signInPassword" />
-          <button ref="signInButton">Logg inn</button>
+      <div className ="limiter">
+        <div className ="container-login100" style={ { backgroundImage: `url(require("image-background.jpg"))` } }>
+            <div className ="wrap-login100">
+                <div className ="login100-form">
+                    <span className ="login100-form-logo">
+                        <img src="rodfugl.png" />
+                    </span>
+                        <span className="login100-form-title p-b-34 p-t-27">
+                            Innlogging
+                        </span>
+                            <div className="wrap-input100">
+                            <input className="input100" placeholder="Brukernavn" type="text" ref="signInUsername" />
+                                <span className="focus-input100">
+                                </span>
+                            </div>
+                            <div className="wrap-input100">
+                            <input className="input100" placeholder="Passord" type="password" ref="signInPassword" />
+                                <span className="focus-input100">
+                                </span>
+                            </div>
+                            <div className="container-login100-form-btn">
+                                <button className="login100-form-btn" ref="signInButton">Logg inn</button>
+                            </div>
+
+                </div>
+            </div>
+        </div>
       </div>
     );
   }
@@ -125,12 +148,14 @@ class Home extends React.Component<{}> {
             listMembers.push(<li key={member.ID}>{member.Fornavn}</li>) //use key prop for optimalization
         }
 
-        return <div>
-            <h1>Hjem</h1><br/>
-            <div>
-                {listMembers}
-            </div>
-        </div>;
+        return <div className ="body">
+                    <div className ="content">
+                        <h1>Hjem</h1><br/>
+                            <div>
+                                {listMembers}
+                            </div>
+                    </div>
+                </div>;
     }
 
 
@@ -160,24 +185,24 @@ class AddEvent extends React.Component<{}> {
     addMeetingTime: HTMLInputElement,
     addContactPerson: HTMLInputElement,
     addEventButton: HTMLButtonElement
-  }
+  };
   render() {
     return <div>
               <h1>Opprett arrangement</h1><br />
 
-              Navn: <input type="text" ref="eventName" />
-              Postnummer: <input type="text" ref="zipCode" />
-              Startdato: <input type="text" ref="eventStartDate" />
-              Slutdato: <input type="text" ref="eventEndDate" /><br />
-              Beskrivelse: <textarea cols="40" rows="5" ref='eventDescription' /><br /><br />
-              Starttidspunkt: <input type="text" ref="startTime" />
-              Sluttidspunkt: <input type="text" ref="endTime" /><br /><br />
-              Oppmøtedato: <input type="text" ref="meetingDate" />
-              Oppmøtested: <input type="text" ref="meetingPoint" />
-              Oppmøtetidspunkt: <input type="text" ref="meetingTime" /><br />
-              Kontaktperson: <input type="text" ref="contactPerson" />
-              Vaktmal:<br />
-              Utstyrsliste: <br /><br />
+        Navn: <input type="text" ref="addEventName" />
+        Postnummer: <input type="text" ref="addZipCode" />
+        Startdato: <input type="date" ref="addEventStartDate" />
+        Slutdato: <input type="date" ref="addEventEndDate" /><br />
+        Beskrivelse: <textarea cols="40" rows="5" ref='addEventDescription' /><br /><br />
+        Starttidspunkt: <input type="time" ref="addStartTime" />
+        Sluttidspunkt: <input type="time" ref="addEndTime" /><br /><br />
+        Oppmøtedato: <input type="date" ref="addMeetingDate" />
+        Oppmøtested: <input type="text" ref="addMeetingPoint" />
+        Oppmøtetidspunkt: <input type="time" ref="addMeetingTime" /><br />
+        Kontaktperson: <input type="number" ref="addContactPerson" />
+        Vaktmal:<br />
+        Utstyrsliste: <br /><br />
 
             <button ref="addEventButton">Opprett arrangement</button>
             </div>
@@ -218,14 +243,16 @@ class Event extends React.Component<{}> {
   render() {
     let listEvents = [];
     for(let eventa of this.events) {
-        listEvents.push(<li key={eventa.idArrangementer}>{eventa.Arrangement_Navn}</li>) //bruker key prop for optimalisering
+        listEvents.push(<tr key={eventa.idArrangementer}><NavLink activeStyle={{color: 'red'}} to={'/editevent/'+eventa.idArrangementer}>{eventa.Arrangement_Navn}</NavLink><td>{eventa.Beskrivelse}</td></tr>) //bruker key prop for optimalisering
     }
 
       return <div>
           <h1>Arrangement</h1><br/>
-          <div>
-              {listEvents}
-          </div>
+          <table border = "1px">
+              <tbody>
+                {listEvents}
+              </tbody>
+          </table>
           <button ref="goToEventButton">Opprett arrangement</button>
       </div>;
   }
@@ -247,19 +274,165 @@ class Event extends React.Component<{}> {
 }
 let eventList;
 
-class Crew extends React.Component<{}> {
-  render() {
-    return <div>
-              <h1>Mannskap</h1>
+class EditEvent extends React.Component<{}> {
+    constructor(props) {
+        super(props);
 
+        this.idArrangementer = props.match.params.id;
+        this.Arrangement_Navn = "";
+        this.Beskrivelse = "";
+        this.Postnummer = "";
+        this.StartDato = "";
+        this.SluttDato = "";
+        this.StartTid = "";
+        this.SluttTid = "";
+        this.Oppmotedato = "";
+        this.OppmoteSted = "";
+        this.OppmoteTid = "";
+        this.EksternKontakt = "";
+    }
+
+    render() {
+        return (
+            <div>
+                Arrangement id: {this.idArrangementer} <br/>
+                Navn: {this.Arrangement_Navn} <br/> <input type='text' ref='changeTitle'  /><br/>
+                Beskrivelse: {this.Beskrivelse} <br/> <textarea cols="40" rows="5" ref='changeText'  /><br/>
+                Postnummer: {this.Postnummer} <br/> <input type="text" ref="changeZipCode" />
+                Startdato: {this.StartDato} <br/> <input type="date" ref="changeEventStartDate" />
+                Sluttdato: {this.SluttDato} <br/> <input type="date" ref="changeEventEndDate" /><br />
+                Starttidspunkt: {this.StartTid} <br/> <input type="time" ref="changeStartTime" />
+                Sluttidspunkt: {this.SluttTid} <br/> <input type="time" ref="changeEndTime" /><br /><br />
+                Oppmøtedato: {this.Oppmotedato} <br/> <input type="date" ref="changeMeetingDate" />
+                Oppmøtested: {this.OppmoteSted} <br/> <input type="text" ref="changeMeetingPoint" />
+                Oppmøtetidspunkt: {this.OppmoteTid} <br/> <input type="time" ref="changeMeetingTime" /><br />
+                Kontaktperson: {this.EksternKontakt} <br/> <input type="number" ref="changeContactPerson" />
+                Vaktmal:<br />
+                Utstyrsliste: <br /><br />
+                <button ref = "changeButton">Endre</button>
+                {}
             </div>
-  }
+        );
+    }
+
+    componentDidMount() {
+        eventService.getEvent(this.idArrangementer).then((events) => {
+            this.Arrangement_Navn = events.Arrangement_Navn;
+            this.Beskrivelse = events.Beskrivelse;
+            this.Postnummer = events.Postnummer;
+            this.StartDato = events.StartDato;
+            this.SluttDato = events.SluttDato;
+            this.StartTid = events.StartTid;
+            this.SluttTid = events.SluttTid;
+            this.Oppmotedato = events.Oppmotedato;
+            this.OppmoteSted = events.OppmoteSted;
+            this.OppmoteTid = events.OppmoteTid;
+            this.EksternKontakt = events.EksternKontakt;
+            this.forceUpdate();
+
+        }).catch((error) => {
+            if(errorMessage) errorMessage.set('Error getting events: ' + error.message);
+        });
+        this.refs.changeButton.onclick = () => {
+            eventService.changeEvents(
+            this.idArrangementer,
+            this.refs.changeTitle.value,
+            this.refs.changeText.value,
+            this.refs.changeZipCode.value,
+            this.refs.changeEventStartDate.value,
+            this.refs.changeEventEndDate.value,
+            this.refs.changeStartTime.value,
+            this.refs.changeEndTime.value,
+            this.refs.changeMeetingDate.value,
+            this.refs.changeMeetingPoint.value,
+            this.refs.changeMeetingTime.value,
+            this.refs.changeContactPerson.value).then( () => {
+                this.componentDidMount();
+            }).catch((error) => {
+                if(errorMessage) errorMessage.set('Error getting events: ' + error.message);
+            });
+        }
+    }
+
+    // Called when the this.props-object change while the component is mounted
+    // For instance, when navigating from path /edit/1 to /edit/2
+    componentWillReceiveProps(newProps) {
+        this.idArrangementer = newProps.match.params.id;
+        this.componentDidMount();
+        // To update the view and show the correct note data, rerun database query here
+    }
+}
+
+class Crew extends React.Component<{}> {
+    constructor() {
+        super();
+        this.crews = [];
+    }
+    render() {
+        let listCrews = [];
+        for(let crew of this.crews) {
+            listCrews.push(<li key={crew.Mann_id}>{crew.Navn}</li>) //bruker key prop for optimalisering
+        }
+
+        return <div>
+            <h1>Mannskap</h1><br/>
+            <div>
+                {listCrews}
+            </div>
+            <button ref="goToAddCrewButton">Opprett Mannskap</button>
+        </div>;
+    }
+
+
+    componentDidMount() {
+        crewService.getShiftTemplate().then((crews) => {
+            this.crews = crews;
+            this.forceUpdate();
+        }).catch((error) => {
+            if (errorMessage) errorMessage.set('Error getting crews: ' + error.message);
+        });
+        crewList = this;
+        this.refs.goToAddCrewButton.onclick = () => {
+            history.push('/addcrew');
+            console.log("Hoppet til addCrew");
+        };
+    }
+}
+let crewList;
+
+class AddCrew extends React.Component<{}> {
+    refs: {
+        crewName: HTMLInputElement,
+        addRoleButton: HTMLButtonElement
+    };
+    render() {
+        return <div>
+            <h1>Opprett mannskap</h1><br />
+
+            Navn: <input type="text" ref="crewName" /><br />
+            <button ref="addCrewButton">Opprett mannskap</button>
+        </div>
+    }
 }
 
 class Roles extends React.Component<{}> {
+    constructor() {
+        super();
+        this.roles = [];
+    }
   render() {
+      let listRoles = [];
+      for(let role of this.roles) {
+          listRoles.push(<tr key={role.rolle_id}><td>{role.Rolle}</td><td>{role.Krav}</td></tr>)
+      }
+
     return <div>
               <h1>Roller</h1>
+                <table border = "1px">
+                    <tbody>
+                        {listRoles}
+                    </tbody>
+                </table>
               <button ref="goToRoleButton">Opprett rolle</button>
             </div>
   }
@@ -268,6 +441,13 @@ class Roles extends React.Component<{}> {
       history.push('/addrole');
       console.log("Hoppet til addrole");
     };
+      roleService.getRoles().then((roles) => {
+          this.roles = roles;
+          this.forceUpdate();
+      }).catch((error) => {
+          if (errorMessage) errorMessage.set('Error getting roles: ' + error.message);
+      });
+      eventList = this;
   }
 }
 
@@ -344,7 +524,9 @@ if(root) {
           <Route exact path='/signout' component={SignOut} />
           <Route exact path='/event' component={Event} />
           <Route exact path='/addevent' component={AddEvent} />
+            <Route exact path='/editevent/:id' component={EditEvent} />
           <Route exact path='/crew' component={Crew} />
+            <Route exact path='/addcrew' component={AddCrew} />
           <Route exact path='/roles' component={Roles} />
           <Route exact path='/addrole' component={AddRole} />
           <Route exact path='/mypage:id' component={MyPage} />
@@ -353,4 +535,4 @@ if(root) {
       </div>
     </HashRouter>
   ), root);
-};
+}

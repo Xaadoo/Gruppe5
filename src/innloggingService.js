@@ -33,6 +33,37 @@ class User {
   firstName: string;
   password: string;
 }
+class RoleService {
+    getRoles() : Promise<void> {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM Roller', (error, result) => {
+                if(error) {
+                    reject(error);
+                    return;
+                }
+                resolve(result);
+            });
+        });
+    }
+}
+let roleService = new RoleService;
+
+//jobb med CrewService: Joine tabeller?
+class CrewService {
+  getShiftTemplate() : Promise<void> {
+    return new Promise((resolve, reject) => {
+      connection.query('SELECT Mannskap.Mann_id, Mannskap.Navn, Roller.rolle_id, Roller.Rolle FROM Mannskap INNER JOIN Roller ON Mannskap.Mann_id = Roller.rolle_id;',
+          (error, result) => {
+        if(error) {
+          reject(error);
+          return;
+          }
+          resolve(result);
+          });
+      });
+  }
+}
+let crewService = new CrewService;
 // Class that performs database queries related to members
 class MemberService {
     getMembers() : Promise<void> {
@@ -138,7 +169,6 @@ class UserService {
 
 class Eventa {
   //skrev Eventa fordi Event er et reservert ord
-  //kaskje id må stå idArrangementer?
   id: number;
   eventName: string;
   zipCode: number;
@@ -165,59 +195,61 @@ class EventService {
         });
       });
     }
-
+  getEvent(idArrangementer) : Promise<void> {
+      return new Promise((resolve, reject) => {
+          connection.query('SELECT * FROM Arrangementer Where idArrangementer = ?', [idArrangementer], (error, result) => {
+              if (error) {
+                  reject(error);
+                  return;
+              }
+              resolve(result[0]);
+          });
+      });
+  }
+changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDato, SluttDato, StartTid, SluttTid, Oppmotedato, OppmoteSted, OppmoteTid, EksternKontakt) : Promise<void> {
+    return new Promise((resolve, reject) => {
+        connection.query('UPDATE Arrangementer SET Arrangement_Navn = ?, Beskrivelse = ?, Postnummer = ?, StartDato = ?, SluttDato = ?, StartTid = ?, SluttTid = ?, Oppmotedato = ?, OppmoteSted = ?, OppmoteTid = ?, EksternKontakt = ? WHERE idArrangementer = ?', [Arrangement_Navn, Beskrivelse, Postnummer, StartDato, SluttDato, StartTid, SluttTid, Oppmotedato, OppmoteSted, OppmoteTid, EksternKontakt, idArrangementer], (error, result) => {
+            if(error) {
+                reject(error);
+                return;
+            }
+            resolve(result);
+        });
+    });
+}
   addEvent(
-    eventName: string, zipCode: string,
-    eventStartDate: string,
-    eventEndDate: string,
-    eventDescription: string,
-    startTime: string,
-    endTime: string,
-    meetingDate: string,
-    meetingPoint: string,
-    meetingTime: string,
-    contactPerson: string)
+      eventName: string,
+      zipCode: string,
+      eventStartDate: Date,
+      eventEndDate: Date,
+      eventDescription: string,
+      startTime: string,
+      endTime: string,
+      meetingDate: Date,
+      meetingPoint: string,
+      meetingTime: string,
+      contactPerson: string)
     : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query(
-        'INSERT INTO Arrangementer (Arrangement_Navn, Postnummer, StartDato, SluttDato, Beskrivelse, StartTid, SluttTid, OppmoteDato, OppmoteSted, OppmoteTid, EksternKontakt) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [eventName, eventStartDate, eventEndDate, eventDescription, startTime, endTime, meetingDate, meetingPoint, meetingTime, contactPerson], (error, result) => {
+          'INSERT INTO Arrangementer (Postnummer, Beskrivelse, StartDato, SluttDato, StartTid, SluttTid, OppmoteDato,  OppmoteTid, OppmoteSted, EksternKontakt, Arrangement_Navn) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [zipCode, eventDescription, eventStartDate, eventEndDate, startTime, endTime, meetingDate, meetingTime, meetingPoint, contactPerson, eventName], (error, result) => {
+              // skriv dette i sluttrapporten: Det var vanskelig å få til denne spørringen da vi slurva med datatyper.
       // connection.query( 'SELECT EXISTS (SELECT * FROM Medlemmer WHERE Brukernavn = ? AND Passord = ?', [username, password], (error, result) => {
       // connection.query('SELECT * FROM Medlemmer where Brukernavn=?', [username], (error, result) => {
       // connection.query('SELECT CASE WHEN EXIST ( SELECT * FROM Medlemmer WHERE Brukernavn = ?, Passord = ? ) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END', [username, password], (error, result) => {
 
-        if(error) {
-          reject(error);
-          return;
-        }
-        if(typeof(result.insertId) !=='number') {
-          reject(new Error('Could not read insertId'))
-          return;
-        }
-
-        resolve(result.insertId);
-      });
+              if(error) {
+                  reject(error);
+                  return;
+              }
+              resolve(result[1]);
+          });
     });
   }
 }
 let eventService = new EventService();
 //skrev Eventa fordi Event er et reservert ord
-  export { User, userService, Eventa, eventService, memberService };
+  export { User, userService, Eventa, eventService, memberService, roleService, crewService };
 
-// class InnloggingService {
-//   loggInn(brukernavn, passord) {
-//     return new Promise ((resolve, reject) => {
-//
-//       connection.query("SELECT CASE WHEN EXIST ( SELECT * FROM Medlemmer WHERE Brukernavn = ?, Passord = ? ) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END", [brukernavn, passord], (error, result) => {
-//         if (error) {
-//           reject(error);
-//           return;
-//         }
-//
-//         console.log(result);
-//         resolve(result);
-//
-//       });
-//     });
-//   }
-// }
+
