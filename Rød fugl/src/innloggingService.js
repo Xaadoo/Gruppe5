@@ -86,6 +86,55 @@ class UserService {
 
   let userService = new UserService();
 
+// class Validation {
+//   memberValidation(
+//     username: string,
+//     name: string,
+//     middlename: string,
+//     surname: string,
+//     email: string,
+//     passord: string,
+//     birthdate: Date,
+//     phone: string,
+//     adress: string)
+//   ) : Promise<void> {
+//     return new Promise((resolve, reject) =>
+//       if(username==(null||"") {ErrorMessage.set("Brukernavn må fylles.")}
+//       if(
+//
+//   )};
+// }
+
+class MemberService {
+  addMember(
+    username: string,
+    name: string,
+    middlename: string,
+    surname: string,
+    email: string,
+    passord: string,
+    birthdate: Date,
+    phone: string,
+    adress: string)
+    : Promise<void> {
+      return new Promise((resolve, reject) => {
+        connection.query(
+          'INSERT INTO Medlemmer (Brukernavn, Passord, Fornavn, Mellomnavn, Etternavn, Telefon, Gateadresse, Fødselsdato, Epost) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?)', [username, passord, name, middlename, surname, phone, adress, birthdate, email], (error, result) => {
+
+          console.log("Sendt " + username + name + middlename + surname + email + passord + birthdate + adress + phone);
+
+          if(error) {console.log(error)
+          reject(error)}
+          return;
+
+          resolve(result[1]);
+        });
+      });
+    }
+  }
+
+  let memberService = new MemberService();
+
 class Eventa {
   //skrev Eventa fordi Event er et reservert ord
   //kaskje id må stå idArrangementer?
@@ -95,8 +144,8 @@ class Eventa {
   eventStartDate: string;
   eventEndDate: string;
   eventDescription: string;
-  startTime: string;
-  endTime: string;
+  startTime: number;
+  endTime: number;
   meetingDate: string;
   meetingPoint: string;
   meetingTime: string;
@@ -118,42 +167,43 @@ class EventService {
   }
 
   addEvent(
-    eventName: string, zipCode: number,
-    eventStartDate: string,
-    eventEndDate: string,
+    eventName: string,
+    zipCode: string,
+    eventStartDate: Date,
+    eventEndDate: Date,
     eventDescription: string,
     startTime: string,
     endTime: string,
-    meetingDate: string,
+    meetingDate: Date,
     meetingPoint: string,
     meetingTime: string,
     contactPerson: string)
     : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query(
-        'INSERT INTO Arrangementer (Arrangement_Navn, Postnummer, StartDato, SluttDato, Beskrivelse, StartTid, SluttTid, OppmoteDato, OppmoteSted, OppmoteTid, EksternKontakt) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [eventName, eventStartDate, eventEndDate, eventDescription, startTime, endTime, meetingDate, meetingPoint, meetingTime, contactPerson], (error, result) => {
-      // connection.query( 'SELECT EXISTS (SELECT * FROM Medlemmer WHERE Brukernavn = ? AND Passord = ?', [username, password], (error, result) => {
-      // connection.query('SELECT * FROM Medlemmer where Brukernavn=?', [username], (error, result) => {
-      // connection.query('SELECT CASE WHEN EXIST ( SELECT * FROM Medlemmer WHERE Brukernavn = ?, Passord = ? ) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END', [username, password], (error, result) => {
+        'INSERT INTO Arrangementer (Postnummer, Beskrivelse, StartDato, SluttDato, StartTid, SluttTid, OppmoteDato,  OppmoteTid, OppmoteSted, EksternKontakt, Arrangement_Navn) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [zipCode, eventDescription, eventStartDate, eventEndDate, startTime, endTime, meetingDate, meetingTime, meetingPoint, contactPerson, eventName], (error, result) => {
+      // skriv dette i sluttrapporten: Det var vanskelig å få til denne spørringen da vi slurva med datatyper.
+
+        console.log(eventName + " <br> " + zipCode + " <br> " + eventDescription + " <br> " + eventStartDate + " <br> " + eventEndDate + " <br> " + startTime + " <br> " + endTime + " <br> " + meetingDate + " <br> " + meetingPoint + " <br> " + meetingTime + " <br> " + contactPerson + "       " + error);
 
         if(error) {
-          reject(error);
+          console.log(error);
           return;
         }
-        if(typeof(result.insertId) !=='number') {
-          reject(new Error('Could not read insertId'))
-          return;
-        }
+        // if(typeof(result.insertId) !=='number') {
+        //   reject(new Error('Could not read insertId'))
+        //   return;
+        // }
 
-        resolve(result.insertId);
+        resolve(result[1]);
       });
     });
   }
 }
 let eventService = new EventService();
 //skrev Eventa fordi Event er et reservert ord
-  export { User, userService, Eventa, eventService };
+  export { User, userService, memberService, Eventa, eventService };
 
 // class InnloggingService {
 //   loggInn(brukernavn, passord) {
