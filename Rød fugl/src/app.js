@@ -66,6 +66,7 @@ class Menu extends React.Component<{}> {
     return (
       <div>
         <NavLink activeStyle={{color: 'red'}} to='/signin'>Logg inn</NavLink>{' '}
+        <NavLink activeStyle={{color: "red"}} to="/forgottonpassword">Glemt passord</NavLink>{" "}
       </div>
     );
   }
@@ -109,7 +110,6 @@ class SignIn extends React.Component<{}> {
                             <input className="input100" placeholder="Passord" type="password" ref="signInPassword" />
                                 <span className="focus-input100">
                                 </span>
-                            <NavLink activeStyle={{color: "red"}} to="/forgottonpassword">Glemt passord</NavLink>{" "}
                             </div>
                             <div className="container-login100-form-btn">
                                 <button className="login100-form-btn" ref="signInButton">Logg inn</button>
@@ -141,114 +141,115 @@ class SignIn extends React.Component<{}> {
 let validationNumberForForgottonPassword;
 let emailForForgottonPassword;
 let accountNameForForgottonPassword;
+
 class ForgottonPassword extends React.Component<{}> {
-  refs: {
-    emailAddress: HTMLInputElement,
-    recoverPasswordButton: HTMLButtonElement
-  }
+    refs: {
+        emailAddress: HTMLInputElement,
+        recoverPasswordButton: HTMLButtonElement
+    }
 
-  render() {
-    return (
-      <div>
-        <h1> Glemt Passord </h1>
-          Epost: <input type="text" ref="emailAddress" />
-          <div>
-          <button ref="recoverPasswordButton"> Gjennoprett passord </button>
-          </div>
-      </div>
-    );
-  }
+    render() {
+        return (
+            <div>
+                <h1> Glemt Passord </h1>
+                Epost: <input type="text" ref="emailAddress" />
+                <div>
+                    <button ref="recoverPasswordButton"> Gjennoprett passord </button>
+                </div>
+            </div>
+        );
+    }
 
-  componentDidMount() {
-    this.refs.recoverPasswordButton.onclick = () => {
-      forgottonPasswordService.getUserFromEmail(this.refs.emailAddress.value).then((result) => {
-        accountNameForForgottonPassword = result.Fornavn;
-      }).catch((error: Error) => {
-        if(errorMessage) errorMessage.set("Kunne ikke få konto detaljer");
-      });
+    componentDidMount() {
+        this.refs.recoverPasswordButton.onclick = () => {
+            forgottonPasswordService.getUserFromEmail(this.refs.emailAddress.value).then((result) => {
+                accountNameForForgottonPassword = result.Fornavn;
+            }).catch((error: Error) => {
+                if(errorMessage) errorMessage.set("Kunne ikke få konto detaljer");
+            });
 
-      forgottonPasswordService.getUserFromEmailCheck(this.refs.emailAddress.value).then(() => {
-        validationNumberForForgottonPassword = (Math.floor(Math.random() * 9999));
-        emailForForgottonPassword = this.refs.emailAddress.value;
-        console.log(validationNumberForForgottonPassword);
-        // forgottonPasswordService.sendEmail(this.refs.emailAddress.value, validationNumberForForgottonPassword, accountNameForForgottonPassword)
-        history.push("/ForgottonPasswordValidation")
-      }).catch((error: Error) => {
-        if(errorMessage) errorMessage.set("Denne eposten er ikke tilknyttet til en konto");
-      });
-    };
-  }
+            forgottonPasswordService.getUserFromEmailCheck(this.refs.emailAddress.value).then(() => {
+                validationNumberForForgottonPassword = (Math.floor(Math.random() * 9999));
+                emailForForgottonPassword = this.refs.emailAddress.value;
+                console.log(validationNumberForForgottonPassword);
+                forgottonPasswordService.sendEmail(this.refs.emailAddress.value, validationNumberForForgottonPassword, accountNameForForgottonPassword)
+                history.push("/ForgottonPasswordValidation")
+            }).catch((error: Error) => {
+                if(errorMessage) errorMessage.set("Denne eposten er ikke tilknyttet til en konto");
+            });
+        };
+    }
 }
 
 class ForgottonPasswordValidation extends React.Component<{}> {
-  refs: {
-    validatingNumberInput: HTMLInputElement,
-    validatingButton: HTMLButtonElement
-  }
-
-  render() {
-    return (
-      <div>
-      <h1> Valider koden din </h1>
-        <div>
-          Kode: <input type="text" ref="validatingNumberInput" />
-        </div>
-        <div>
-          <button ref="validatingButton"> Valider koden </button>
-        </div>
-      </div>
-    );
-  }
-
-  componentDidMount() {
-    console.log(validationNumberForForgottonPassword);
-    this.refs.validatingButton.onclick = () => {
-      if(this.refs.validatingNumberInput.value == validationNumberForForgottonPassword) {
-        history.push("/ForgottonPasswordChange");
-      }
-
-      else { alert("Feil Kode"); }
+    refs: {
+        validatingNumberInput: HTMLInputElement,
+        validatingButton: HTMLButtonElement
     }
-  }
+
+    render() {
+        return (
+            <div>
+                <h1> Valider koden din </h1>
+                <div>
+                    Kode: <input type="text" ref="validatingNumberInput" />
+                </div>
+                <div>
+                    <button ref="validatingButton"> Valider koden </button>
+                </div>
+            </div>
+        );
+    }
+
+    componentDidMount() {
+        console.log(validationNumberForForgottonPassword);
+        this.refs.validatingButton.onclick = () => {
+            if(this.refs.validatingNumberInput.value == validationNumberForForgottonPassword) {
+                history.push("/ForgottonPasswordChange");
+            }
+
+            else { alert("Feil Kode"); }
+        }
+    }
 }
 
 class ForgottonPasswordChange extends React.Component<{}> {
-  refs: {
-    passwordChangeInput: HTMLInputElement,
-    passwordConfirmChangeInput: HTMLInputElement,
-    changePasswordButton: HTMLButtonElement
-  }
-
-  render() {
-    return (
-      <div>
-      <h1> Endre passordet ditt </h1>
-        <div>
-        Nytt passord: <input type="password" ref="passwordChangeInput" />
-        </div>
-        <div>
-        Bekreft nytt passord: <input type="password" ref="passwordConfirmChangeInput" />
-        </div>
-        <div>
-        <button ref="changePasswordButton"> Forandre passord </button>
-        </div>
-      </div>
-    )
-  }
-
-  componentDidMount() {
-    this.refs.changePasswordButton.onclick = () => {
-      if (this.refs.passwordChangeInput.value == this.refs.passwordConfirmChangeInput.value) {
-        forgottonPasswordService.changePassword(emailForForgottonPassword, this.refs.passwordChangeInput.value).then(() => {
-          alert("Passordet har blit endret!");
-          history.push("/signin");
-        }).catch((error: Error) => {
-          if (errorMessage) errorMessage.set("Kunne ikke endre passord!");
-        });
-      }
-      else {alert("Passordene er ikke like!")};
+    refs: {
+        passwordChangeInput: HTMLInputElement,
+        passwordConfirmChangeInput: HTMLInputElement,
+        changePasswordButton: HTMLButtonElement
     }
-  }
+
+    render() {
+        return (
+            <div>
+                <h1> Endre passordet ditt </h1>
+                <div>
+                    Nytt passord: <input type="password" ref="passwordChangeInput" />
+                </div>
+                <div>
+                    Bekreft nytt passord: <input type="password" ref="passwordConfirmChangeInput" />
+                </div>
+                <div>
+                    <button ref="changePasswordButton"> Forandre passord </button>
+                </div>
+            </div>
+        )
+    }
+
+    componentDidMount() {
+        this.refs.changePasswordButton.onclick = () => {
+            if (this.refs.passwordChangeInput.value == this.refs.passwordConfirmChangeInput.value) {
+                forgottonPasswordService.changePassword(emailForForgottonPassword, this.refs.passwordChangeInput.value).then(() => {
+                    alert("Passordet har blit endret!");
+                    history.push("/signin");
+                }).catch((error: Error) => {
+                    if (errorMessage) errorMessage.set("Kunne ikke endre passord!");
+                });
+            }
+            else {alert("Passordene er ikke like!")};
+        }
+    }
 }
 
 class Home extends React.Component<{}> {
@@ -635,10 +636,10 @@ if(root) {
         <Menu />
         <Switch>
           <Route exact path="/signin" component={SignIn} />
-          <Route exact path="/forgottonpassword" component={ForgottonPassword} />
-          <Route exact path="/forgottonpasswordvalidation" component={ForgottonPasswordValidation} />
-          <Route exact path="/forgottonpasswordchange" component={ForgottonPasswordChange} />
           <Route exact path='/signout' component={SignOut} />
+            <Route exact path="/forgottonpassword" component={ForgottonPassword} />
+            <Route exact path="/forgottonpasswordvalidation" component={ForgottonPasswordValidation} />
+            <Route exact path="/forgottonpasswordchange" component={ForgottonPasswordChange} />
           <Route exact path='/event' component={Event} />
           <Route exact path='/addevent' component={AddEvent} />
             <Route exact path='/editevent/:id' component={EditEvent} />
