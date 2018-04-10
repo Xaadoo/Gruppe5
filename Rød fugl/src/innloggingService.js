@@ -33,6 +33,56 @@ class User {
   firstName: string;
   password: string;
 }
+
+class ForgottonPasswordService {
+    getUserFromEmail(email: string) : Promise<void> {
+        return new Promise((resolve, reject) => {
+            connection.query("SELECT * FROM Medlemmer WHERE Epost = ?", [email], (error, result) => {
+                if(error) {
+                    reject(error);
+                    return;
+                }
+                resolve(result[0]);
+            });
+        });
+    }
+
+    getUserFromEmailCheck(email: string) : Promise<void> {
+        return new Promise((resolve, reject) => {
+            connection.query("SELECT * FROM Medlemmer WHERE BINARY Epost = ?", [email], (error, result) => {
+                if(error) {
+                    reject(error);
+                    return;
+                }
+                if(result.length!=1) {
+                    reject(new Error('Result length was not 1'))
+                    return;
+                }
+
+                resolve();
+            });
+        });
+    }
+
+    // Dette er kode fra en annen javascript fil for å sende mail, den er ikke koblet til databasen
+    sendEmail(emailTo, validatingCode, nameto) {
+        emailjs.send("default_service","glemtpassord",{to_name: nameto, from_name: "Rød Fugl", to_email: emailTo, message_html: "Her er din validerings kode: " + validatingCode})
+    }
+
+    changePassword(email: string, password: string) : Promise<void> {
+        return new Promise((resolve, reject) => {
+            connection.query("UPDATE Medlemmer SET Passord = ? WHERE Epost = ?", [password, email], (error, result) => {
+                if(error) {
+                    reject(error);
+                    return;
+                }
+                resolve();
+            });
+        });
+    }
+}
+let forgottonPasswordService = new ForgottonPasswordService;
+
 class RoleService {
     getRoles() : Promise<void> {
         return new Promise((resolve, reject) => {
@@ -48,10 +98,12 @@ class RoleService {
 }
 let roleService = new RoleService;
 
-class MannskapService {
+//jobb med CrewService: Joine tabeller?
+class CrewService {
   getShiftTemplate() : Promise<void> {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM Mannskap', (error, result) => {
+      connection.query('SELECT Mannskap.Mann_id, Mannskap.Navn, Roller.rolle_id, Roller.Rolle FROM Mannskap INNER JOIN Roller ON Mannskap.Mann_id = Roller.rolle_id;',
+          (error, result) => {
         if(error) {
           reject(error);
           return;
@@ -61,7 +113,7 @@ class MannskapService {
       });
   }
 }
-let mannskapService = new MannskapService;
+let crewService = new CrewService;
 // Class that performs database queries related to members
 class MemberService {
     getMembers() : Promise<void> {
@@ -193,7 +245,28 @@ class EventService {
         });
       });
     }
-
+  getEvent(idArrangementer) : Promise<void> {
+      return new Promise((resolve, reject) => {
+          connection.query('SELECT * FROM Arrangementer Where idArrangementer = ?', [idArrangementer], (error, result) => {
+              if (error) {
+                  reject(error);
+                  return;
+              }
+              resolve(result[0]);
+          });
+      });
+  }
+changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDato, SluttDato, StartTid, SluttTid, Oppmotedato, OppmoteSted, OppmoteTid, EksternKontakt) : Promise<void> {
+    return new Promise((resolve, reject) => {
+        connection.query('UPDATE Arrangementer SET Arrangement_Navn = ?, Beskrivelse = ?, Postnummer = ?, StartDato = ?, SluttDato = ?, StartTid = ?, SluttTid = ?, Oppmotedato = ?, OppmoteSted = ?, OppmoteTid = ?, EksternKontakt = ? WHERE idArrangementer = ?', [Arrangement_Navn, Beskrivelse, Postnummer, StartDato, SluttDato, StartTid, SluttTid, Oppmotedato, OppmoteSted, OppmoteTid, EksternKontakt, idArrangementer], (error, result) => {
+            if(error) {
+                reject(error);
+                return;
+            }
+            resolve(result);
+        });
+    });
+}
   addEvent(
       eventName: string,
       zipCode: string,
@@ -220,11 +293,6 @@ class EventService {
                   reject(error);
                   return;
               }
-              // if(typeof(result.insertId) !=='number') {
-              //   reject(new Error('Could not read insertId'))
-              //   return;
-              // }
-
               resolve(result[1]);
           });
     });
@@ -232,6 +300,6 @@ class EventService {
 }
 let eventService = new EventService();
 //skrev Eventa fordi Event er et reservert ord
-  export { User, userService, Eventa, eventService, memberService, roleService };
+  export { User, userService, Eventa, eventService, memberService, roleService, crewService, forgottonPasswordService };
 
 
