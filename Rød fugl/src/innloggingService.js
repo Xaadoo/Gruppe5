@@ -166,12 +166,10 @@ class MemberService {
 let memberService = new MemberService();
 
 class UserService {
+  // Vet ikke hvordan å få en egen melding for at kontoen er deaktivert
   signIn(username: string, password: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      connection.query( "SELECT * FROM Medlemmer WHERE BINARY Brukernavn=? AND BINARY Passord=?", [username, password], (error, result) => {
-      // connection.query( 'SELECT EXISTS (SELECT * FROM Medlemmer WHERE Brukernavn = ? AND Passord = ?', [username, password], (error, result) => {
-      // connection.query('SELECT * FROM Medlemmer where Brukernavn=?', [username], (error, result) => {
-      // connection.query('SELECT CASE WHEN EXIST ( SELECT * FROM Medlemmer WHERE Brukernavn = ?, Passord = ? ) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END', [username, password], (error, result) => {
+      connection.query( "SELECT * FROM Medlemmer WHERE BINARY Brukernavn=? AND BINARY Passord=? AND KontoAktiv=1", [username, password], (error, result) => {
 
         if(error) {
           reject(error);
@@ -301,5 +299,3 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
 let eventService = new EventService();
 //skrev Eventa fordi Event er et reservert ord
   export { User, userService, Eventa, eventService, memberService, roleService, crewService, forgottonPasswordService };
-
-

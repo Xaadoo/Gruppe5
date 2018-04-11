@@ -132,7 +132,7 @@ class SignIn extends React.Component<{}> {
         history.push('/');
         console.log("Logget inn confirmed!");
       }).catch((error: Error) => {
-        if(errorMessage) errorMessage.set("Incorrect username");
+        if(errorMessage) errorMessage.set("Feil brukernavn eller passord! Kontoen kan også være deaktivert.");
       });
     };
   }
