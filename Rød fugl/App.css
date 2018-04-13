@@ -1,17 +1,78 @@
-.body {
+h1 {
+    color: #5e5e5e
+}
+
+/*------------------------------------------------------------------
+[ Navbar ]*/
+.navigate {
     font-family: Sans-serif;
-
-    padding:0;
-    margin:0;
-
-    width: 100%;
-    height: 800px;
+    font-size: 24px;
 }
 
-.content {
-    background-color: white;
+.navul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #f8635c;
+    background: -webkit-linear-gradient(top, #ff7e94, #ef2b1a);
+    background: -o-linear-gradient(top, #ff7e94, #ef2b1a);
+    background: -moz-linear-gradient(top, #ff7e94, #ef2b1a);
+    background: linear-gradient(top, #ff7e94, #ef2b1a);
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0;
 }
 
+.navli {
+    float: left;
+}
+
+.navli a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 36px 16px;
+    text-decoration: #8fdf82;
+}
+
+.navli a:hover {
+    background-color: #5e5e5e;
+}
+
+.active {
+    background: #5e5e5e;
+}
+
+.imgli {
+    float: left;
+    background-color: #fdfbff
+}
+
+.imgli a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+.aboutli {
+    float: right;
+}
+
+.aboutli a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 36px 16px;
+    text-decoration: #8fdf82;
+}
+
+.aboutli a:hover {
+    background-color: #5e5e5e;
+}
+/*------------------------------------------------------------------
+[ Innlogging ]*/
 .limiter {
     width: 100%;
     margin: 0 auto;
@@ -406,4 +467,53 @@
         visibility: visible;
         opacity: 1;
     }
+}
+/*------------------------------------------------------------------
+[ Rolletabell ]*/
+#roletable {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#roletable td, #customers th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#roletable tr:nth-child(even){background-color: #f2f2f2;}
+
+#roletable tr:hover {background-color: #ddd;}
+
+#roletable th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #f8635c;
+    color: white;
+}
+.button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.button {
+    background-color: white;
+    color: black;
+    border: 2px solid #f44336;
+}
+
+.button:hover {
+    background-color: #f44336;
+    color: white;
 }
