@@ -53,13 +53,17 @@ class Menu extends React.Component<{}> {
     let signedInUser = userService.getSignedInUser();
     if(signedInUser) {
       return (
-        <div>
-          <NavLink activeStyle={{color: 'red'}} exact to='/'>Hjem</NavLink>{' '}
-          <NavLink activeStyle={{color: 'red'}} exact to='/event'>Arrangement</NavLink>{' '}
-          <NavLink activeStyle={{color: 'red'}} exact to='/crew'>Mannskap</NavLink>{' '}
-          <NavLink activeStyle={{color: 'red'}} exact to='/roles'>Roller</NavLink>{' '}
-          <NavLink activeStyle={{color: 'red'}} exact to='/mypage'>Min Side</NavLink>{' '}
-          <NavLink activeStyle={{color: 'red'}} to='/signout'>Logg ut</NavLink>{' '}
+        <div className ="navigate">
+                <ul className={"navul"}>
+                    <img className= "imgli" src="rodfugl.png" />
+                    <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/'>Hjem</NavLink>{' '}</li>
+                    <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/event'>Arrangement</NavLink>{' '}</li>
+                    <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/crew'>Mannskap</NavLink>{' '}</li>
+                    <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/roles'>Roller</NavLink>{' '}</li>
+                    <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/mypage'>Min Side</NavLink>{' '}</li>
+                    <li className={"navli"}><NavLink activeStyle={{color: 'white'}} to='/signout'>Logg ut</NavLink>{' '}</li>
+                    <li className={"aboutli"}><NavLink activeStyle={{color: 'white'}} to='/about'>Om</NavLink>{' '}</li>
+                </ul>
         </div>
       );
     }
@@ -350,9 +354,9 @@ class AddEvent extends React.Component<{}> {
 }
 
 class Event extends React.Component<{}> {
-
   constructor() {
     super();
+
     this.events = [];
   }
   render() {
@@ -361,15 +365,37 @@ class Event extends React.Component<{}> {
         listEvents.push(<tr key={eventa.idArrangementer}><NavLink activeStyle={{color: 'red'}} to={'/editevent/'+eventa.idArrangementer}>{eventa.Arrangement_Navn}</NavLink><td>{eventa.Beskrivelse}</td></tr>) //bruker key prop for optimalisering
     }
 
-      return <div>
+      return (
+          <div>
           <h1>Arrangement</h1><br/>
-          <table border = "1px">
+          <table id = "roletable">
               <tbody>
+              <tr>
+                  <th>Rolle</th>
+                  <th>Kompetanse</th>
+              </tr>
                 {listEvents}
               </tbody>
           </table>
-          <button ref="goToEventButton">Opprett arrangement</button>
-      </div>;
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+          <button className= "button" ref="goToEventButton">Opprett arrangement</button>
+      </div>
+      );
   }
 
 
@@ -380,20 +406,18 @@ class Event extends React.Component<{}> {
       }).catch((error) => {
           if (errorMessage) errorMessage.set('Error getting notes: ' + error.message);
       });
-      eventList = this;
       this.refs.goToEventButton.onclick = () => {
           history.push('/addevent');
           console.log("Hoppet til addevent");
       };
   }
 }
-let eventList;
 
-class EditEvent extends React.Component<{}> {
+class EditEvent extends React.Component {
     constructor(props) {
         super(props);
 
-        this.idArrangementer = props.match.params.id;
+        this.idArrangementer = props.match.params.idArrangementer;
         this.Arrangement_Navn = "";
         this.Beskrivelse = "";
         this.Postnummer = "";
@@ -422,10 +446,8 @@ class EditEvent extends React.Component<{}> {
                 Oppmøtested: {this.OppmoteSted} <br/> <input type="text" ref="changeMeetingPoint" />
                 Oppmøtetidspunkt: {this.OppmoteTid} <br/> <input type="time" ref="changeMeetingTime" /><br />
                 Kontaktperson: {this.EksternKontakt} <br/> <input type="number" ref="changeContactPerson" />
-                Vaktmal:<br />
-                Utstyrsliste: <br /><br />
+
                 <button ref = "changeButton">Endre</button>
-                {}
             </div>
         );
     }
@@ -472,7 +494,7 @@ class EditEvent extends React.Component<{}> {
     // Called when the this.props-object change while the component is mounted
     // For instance, when navigating from path /edit/1 to /edit/2
     componentWillReceiveProps(newProps) {
-        this.idArrangementer = newProps.match.params.id;
+        this.idArrangementer = newProps.match.params.idArrangementer;
         this.componentDidMount();
         // To update the view and show the correct note data, rerun database query here
     }
@@ -533,6 +555,7 @@ class AddCrew extends React.Component<{}> {
 class Roles extends React.Component<{}> {
     constructor() {
         super();
+
         this.roles = [];
     }
   render() {
@@ -543,12 +566,16 @@ class Roles extends React.Component<{}> {
 
     return <div>
               <h1>Roller</h1>
-                <table border = "1px">
+                <table id = "roletable">
                     <tbody>
+                    <tr>
+                        <th>Rolle</th>
+                        <th>Kompetanse</th>
+                    </tr>
                         {listRoles}
                     </tbody>
                 </table>
-              <button ref="goToRoleButton">Opprett rolle</button>
+              <button className= "button" ref="goToRoleButton">Opprett rolle</button>
             </div>
   }
   componentDidMount() {
@@ -562,7 +589,7 @@ class Roles extends React.Component<{}> {
       }).catch((error) => {
           if (errorMessage) errorMessage.set('Error getting roles: ' + error.message);
       });
-      eventList = this;
+      //eventList = this;
   }
 }
 
@@ -587,21 +614,71 @@ class AddRole extends React.Component<{}> {
 }
 
 class MyPage extends React.Component<{}> {
+constructor(props) {
+    super(props);
+
+    this.ID = props.match.params.ID;
+    this.Brukernavn = "";
+    this.Fornavn = "";
+    this.Etternavn = "";
+    this.Telefon = "";
+    this.Gateadresse = "";
+    this.Postnummer = "";
+    this.Fødselsdato = "";
+    this.Epost = "";
+}
+
   render() {
     return (
             <div>
               <h1>Min side</h1>
-                info info info
-            </div>
-    )
-  }
+                <div>
+                    Medlem id: {this.ID} <br/>
+                    Brukernavn {this.Brukernavn} <br/> <input type='text' ref='changeUsername'  /><br/>
+                    Fornavn: {this.Fornavn} <br/>      <input type='text' ref='changeFirstname'  /><br/>
+                    Etternavn: {this.Etternavn}        <input type='text' ref='changeSurname'  /><br/>
+                    Telefon: {this.Telefon}            <input type='text' ref='changeTelephone'  /><br/>
+                    Gateadresse: {this.Gateadresse}    <input type='text' ref='changeAddress'  /><br/>
+                    Postnummer: {this.Postnummer}      <input type='text' ref='changeZipcode'  /><br/>
+                    Fødselsdato: {this.Fødselsdato}    <input type='date' ref='changeDateOfBirth'  /><br/>
+                    E-post: {this.Epost}               <input type='text' ref='changeEmail'  /><br/>
 
-  componentDidMount() {}
+                    <button ref = "changeButton">Endre</button>
+                    {}
+                </div>
+            </div>
+    );
+  }
+componentDidMount() {
+    memberService.getMember(this.ID).then((members) => {
+        this.Brukernavn= member.Brukernavn;
+        this.Fornavn= member.Fornavn;
+        this.Etternavn= member.Etternavn;
+        this.Telefon= member.Telefon;
+        this.Gateadresse= member.Gateadresse;
+        this.Postnummer= member.Postnummer;
+        this.Fødselsdato= member.Fødselsdato;
+        this.Epost= member.Epost;
+        this.forceUpdate();
+
+    }).catch((error) => {
+        if(errorMessage) errorMessage.set('Error getting member: ' + error.message);
+    });
+    this.refs.changeButton.onclick = () => {
+        memberService.changeMembers(this.ID, this.refs.changeUsername.value, this.refs.changeFirstname.value, this.refs.changeSurname.value, this.refs.changeTelephone.value, this.refs.changeAddress.value, this.refs.changeZipcode.value, this.refs.changeDateOfBirth.value, this.refs.changeEmail.value).then( () => {
+            this.componentDidMount();
+        }).catch((error) => {
+            if(errorMessage) errorMessage.set('Error getting member: ' + error.message);
+        });
+    }
+}
 
   // Called when the this.props-object change while the component is mounted
   // For instance, when navigating from path /user/1 to /user/2
   componentWillReceiveProps() {
-    setTimeout(() => { this.componentDidMount(); }, 0); // Enqueue this.componentDidMount() after props has changed
+      this.ID= newProps.match.params.ID;
+      this.componentDidMount();
+      // To update the view and show the correct note data, rerun database query here
     }
   }
 
@@ -627,6 +704,16 @@ class SignOut extends React.Component<{}> {
 
 let signOut: ?SignOut;
 
+class About extends React.Component<{}> {
+    render() {
+        return <div>
+            <h1>Om oss</h1><br />
+
+            Denne applikasjonen er laget av gruppe 25, som består av Viljar, Lashnan, Helge og Raymond.
+
+        </div>
+    }
+}
 let root = document.getElementById("root");
 if(root) {
   ReactDOM.render((
@@ -642,13 +729,14 @@ if(root) {
             <Route exact path="/forgottonpasswordchange" component={ForgottonPasswordChange} />
           <Route exact path='/event' component={Event} />
           <Route exact path='/addevent' component={AddEvent} />
-            <Route exact path='/editevent/:id' component={EditEvent} />
+            <Route exact path='/editevent/:idArrangementer' component={EditEvent} />
           <Route exact path='/crew' component={Crew} />
             <Route exact path='/addcrew' component={AddCrew} />
           <Route exact path='/roles' component={Roles} />
           <Route exact path='/addrole' component={AddRole} />
           <Route exact path='/mypage:id' component={MyPage} />
-          <Route exact path='/' component={Home} />
+            <Route exact path='/about' component={About} />
+            <Route exact path='/' component={Home} />
         </Switch>
       </div>
     </HashRouter>

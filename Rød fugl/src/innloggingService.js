@@ -127,9 +127,9 @@ class MemberService {
             });
         });
     }
-    getMember(id) : Promise<void> {
+    getMember(ID) : Promise<void> {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM Medlemmer Where id = ?', [id], (error, result) => {
+            connection.query('SELECT * FROM Medlemmer Where ID = ?', [ID], (error, result) => {
                 if(error) {
                     reject(error);
                     return;
