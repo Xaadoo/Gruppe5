@@ -82,6 +82,8 @@ class Menu extends React.Component<{}> {
 
 let menu: ?Menu;
 
+let adminCheckVariable;
+
 class SignIn extends React.Component<{}> {
   refs: {
     signInUsername: HTMLInputElement,
@@ -129,10 +131,24 @@ class SignIn extends React.Component<{}> {
 
     this.refs.signInButton.onclick = () => {
       userService.signIn(this.refs.signInUsername.value, this.refs.signInPassword.value).then(() => {
+
+        let konto = userService.getSignedInUser();
+
+        if (konto.Admin == 1) {
+          console.log("Admin konto funnet!");
+          adminCheckVariable = 1;
+        } else if (konto.Admin == 0) {
+          console.log("Admin konto ikke funnet");
+          adminCheckVariable = 0;
+        }
+
         history.push('/');
-        console.log("Logget inn confirmed!");
+        console.log("Logget inn!");
+
       }).catch((error: Error) => {
+
         if(errorMessage) errorMessage.set("Feil brukernavn eller passord! Kontoen kan også være deaktivert.");
+
       });
     };
   }
@@ -618,6 +634,7 @@ class SignOut extends React.Component<{}> {
     signOut = this;
     this.refs.signOut.onclick = () => {
       userService.signOut();
+      adminCheckVariable = 0;
       history.push("/signin");
       this.forceUpdate();
       console.log("Logget ut");
@@ -637,7 +654,7 @@ if(root) {
         <Switch>
           <Route exact path="/signin" component={SignIn} />
           <Route exact path='/signout' component={SignOut} />
-            <Route exact path="/forgottonpassword" component={ForgottonPassword} />
+          <Route exact path="/forgottonpassword" component={ForgottonPassword} />
             <Route exact path="/forgottonpasswordvalidation" component={ForgottonPasswordValidation} />
             <Route exact path="/forgottonpasswordchange" component={ForgottonPasswordChange} />
           <Route exact path='/event' component={Event} />

@@ -182,7 +182,6 @@ class UserService {
 
         localStorage.setItem('signedInUser', JSON.stringify(result[0])); // Store User-object in browser
         resolve();
-        console.log("Logget inn!");
       });
     });
   }
