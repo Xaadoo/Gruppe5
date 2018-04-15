@@ -35,51 +35,51 @@ class User {
 }
 
 class ForgottonPasswordService {
-  getUserFromEmail(email: string) : Promise<void> {
-      return new Promise((resolve, reject) => {
-        connection.query("SELECT * FROM Medlemmer WHERE Epost = ?", [email], (error, result) => {
-          if(error) {
-            reject(error);
-            return;
-          }
-          resolve(result[0]);
+    getUserFromEmail(email: string) : Promise<void> {
+        return new Promise((resolve, reject) => {
+            connection.query("SELECT * FROM Medlemmer WHERE Epost = ?", [email], (error, result) => {
+                if(error) {
+                    reject(error);
+                    return;
+                }
+                resolve(result[0]);
+            });
         });
-      });
-  }
+    }
 
-  getUserFromEmailCheck(email: string) : Promise<void> {
-    return new Promise((resolve, reject) => {
-      connection.query("SELECT * FROM Medlemmer WHERE BINARY Epost = ?", [email], (error, result) => {
-        if(error) {
-          reject(error);
-          return;
-        }
-        if(result.length!=1) {
-          reject(new Error('Result length was not 1'))
-          return;
-        }
+    getUserFromEmailCheck(email: string) : Promise<void> {
+        return new Promise((resolve, reject) => {
+            connection.query("SELECT * FROM Medlemmer WHERE BINARY Epost = ?", [email], (error, result) => {
+                if(error) {
+                    reject(error);
+                    return;
+                }
+                if(result.length!=1) {
+                    reject(new Error('Result length was not 1'))
+                    return;
+                }
 
-        resolve();
-      });
-    });
-  }
+                resolve();
+            });
+        });
+    }
 
-  // Dette er kode fra en annen javascript fil for å sende mail, den er ikke koblet til databasen
-  sendEmail(emailTo, validatingCode, nameto) {
-    emailjs.send("default_service","glemtpassord",{to_name: nameto, from_name: "Rød Fugl", to_email: emailTo, message_html: "Her er din validerings kode: " + validatingCode})
-  }
+    // Dette er kode fra en annen javascript fil for å sende mail, den er ikke koblet til databasen
+    sendEmail(emailTo, validatingCode, nameto) {
+        emailjs.send("default_service","glemtpassord",{to_name: nameto, from_name: "Rød Fugl", to_email: emailTo, message_html: "Her er din validerings kode: " + validatingCode})
+    }
 
-  changePassword(email: string, password: string) : Promise<void> {
-    return new Promise((resolve, reject) => {
-      connection.query("UPDATE Medlemmer SET Passord = ? WHERE Epost = ?", [password, email], (error, result) => {
-        if(error) {
-          reject(error);
-          return;
-        }
-        resolve();
-      });
-    });
-  }
+    changePassword(email: string, password: string) : Promise<void> {
+        return new Promise((resolve, reject) => {
+            connection.query("UPDATE Medlemmer SET Passord = ? WHERE Epost = ?", [password, email], (error, result) => {
+                if(error) {
+                    reject(error);
+                    return;
+                }
+                resolve();
+            });
+        });
+    }
 }
 let forgottonPasswordService = new ForgottonPasswordService;
 
@@ -104,12 +104,6 @@ class CrewService {
     return new Promise((resolve, reject) => {
       connection.query('SELECT Mannskap.Mann_id, Mannskap.Navn, Roller.rolle_id, Roller.Rolle FROM Mannskap INNER JOIN Roller ON Mannskap.Mann_id = Roller.rolle_id;',
           (error, result) => {
-
-class MannskapService {
-  getShiftTemplate() : Promise<void> {
-    return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM Mannskap', (error, result) => {
-
         if(error) {
           reject(error);
           return;
@@ -119,11 +113,7 @@ class MannskapService {
       });
   }
 }
-
 let crewService = new CrewService;
-
-let mannskapService = new MannskapService;
-
 // Class that performs database queries related to members
 class MemberService {
     getMembers() : Promise<void> {
@@ -176,12 +166,10 @@ class MemberService {
 let memberService = new MemberService();
 
 class UserService {
+  // Vet ikke hvordan å få en egen melding for at kontoen er deaktivert
   signIn(username: string, password: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      connection.query( "SELECT * FROM Medlemmer WHERE BINARY Brukernavn=? AND BINARY Passord=?", [username, password], (error, result) => {
-      // connection.query( 'SELECT EXISTS (SELECT * FROM Medlemmer WHERE Brukernavn = ? AND Passord = ?', [username, password], (error, result) => {
-      // connection.query('SELECT * FROM Medlemmer where Brukernavn=?', [username], (error, result) => {
-      // connection.query('SELECT CASE WHEN EXIST ( SELECT * FROM Medlemmer WHERE Brukernavn = ?, Passord = ? ) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END', [username, password], (error, result) => {
+      connection.query( "SELECT * FROM Medlemmer WHERE BINARY Brukernavn=? AND BINARY Passord=? AND KontoAktiv=1", [username, password], (error, result) => {
 
         if(error) {
           reject(error);
@@ -194,7 +182,6 @@ class UserService {
 
         localStorage.setItem('signedInUser', JSON.stringify(result[0])); // Store User-object in browser
         resolve();
-        console.log("Logget inn!");
       });
     });
   }
@@ -255,7 +242,6 @@ class EventService {
         });
       });
     }
-
   getEvent(idArrangementer) : Promise<void> {
       return new Promise((resolve, reject) => {
           connection.query('SELECT * FROM Arrangementer Where idArrangementer = ?', [idArrangementer], (error, result) => {
@@ -278,9 +264,6 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
         });
     });
 }
-
-
-
   addEvent(
       eventName: string,
       zipCode: string,
@@ -307,12 +290,6 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
                   reject(error);
                   return;
               }
-
-              // if(typeof(result.insertId) !=='number') {
-              //   reject(new Error('Could not read insertId'))
-              //   return;
-              // }
-
               resolve(result[1]);
           });
     });
@@ -320,6 +297,4 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
 }
 let eventService = new EventService();
 //skrev Eventa fordi Event er et reservert ord
-
   export { User, userService, Eventa, eventService, memberService, roleService, crewService, forgottonPasswordService };
-
