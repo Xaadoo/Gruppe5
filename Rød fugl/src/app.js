@@ -5,6 +5,8 @@ import { Link, NavLink, HashRouter, Switch, Route } from 'react-router-dom';
 import createHashHistory from 'history/createHashHistory';
 const history = createHashHistory();
 import { userService, eventService, memberService, roleService, crewService, forgottonPasswordService } from './innloggingService';
+import $ from 'jquery';
+import 'fullcalendar';
 
 //skrev Eventa fordi Event er et reservert ord
 
@@ -269,38 +271,28 @@ class ForgottonPasswordChange extends React.Component<{}> {
 }
 
 class Home extends React.Component<{}> {
-    constructor() {
-        super();
-        this.members = [];
+  constructor(props) {
+      super(props);
+      this.updateEvents = this.updateEvents.bind(this);
+    }
+    componentDidMount() {
+      this.updateEvents(this.props.events);
+    }
+    componentDidUpdate() {
+      this.updateEvents(this.props.events);
+    }
+    updateEvents() {
+      $('#calendar').fullCalendar('destroy');
+      $('#calendar').fullCalendar({
+        defaultView: 'month', // Only show week view
+        height: 'auto', // Get rid of  empty space on the bottom
+        events: 'https://fullcalendar.io/demo-events.json'
+      });
     }
     render() {
-        let listMembers= [];
-        for(let member of this.members) {
-            listMembers.push(<li key={member.ID}>{member.Fornavn}</li>) //use key prop for optimalization
-        }
-
-        return <div className ="body">
-                    <div className ="content">
-                        <h1>Hjem</h1><br/>
-                            <div>
-                                {listMembers}
-                            </div>
-                    </div>
-                </div>;
-    }
-
-
-    componentDidMount() {
-        memberService.getMembers().then((members) => {
-            this.members = members;
-            this.forceUpdate();
-        }).catch((error) => {
-            if (errorMessage) errorMessage.set('Error getting members: ' + error.message);
-        });
-        memberList = this;
+      return <div id='calendar'></div>;
     }
 }
-let memberList;
 
 class AddEvent extends React.Component<{}> {
   refs: {

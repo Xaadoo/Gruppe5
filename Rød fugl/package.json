@@ -6,8 +6,11 @@
     "start": "electron -r babel-register ."
   },
   "dependencies": {
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "fullcalendar": "^3.9.0",
+    "jquery": "^3.3.1",
     "mysql": "^2.15.0",
-    "react": "^16.2.0",
+    "react": "^16.3.1",
     "react-dom": "^16.2.0",
     "react-router-dom": "^4.2.2"
   },
