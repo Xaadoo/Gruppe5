@@ -84,10 +84,10 @@ class ForgottonPasswordService {
 let forgottonPasswordService = new ForgottonPasswordService;
 
 class RoleService {
-    getRoles() : Promise<void> {
+    getRoles(): Promise<void> {
         return new Promise((resolve, reject) => {
             connection.query('SELECT * FROM Roller', (error, result) => {
-                if(error) {
+                if (error) {
                     reject(error);
                     return;
                 }
@@ -95,7 +95,30 @@ class RoleService {
             });
         });
     }
+
+    addRole(
+        eventName: string,
+        zipCode: string)
+        : Promise<void> {
+        return new Promise((resolve, reject) => {
+            connection.query(
+                'INSERT INTO Arrangementer (Postnummer, Beskrivelse, StartDato, SluttDato, StartTid, SluttTid, OppmoteDato,  OppmoteTid, OppmoteSted, EksternKontakt, Arrangement_Navn) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [zipCode, eventDescription, eventStartDate, eventEndDate, startTime, endTime, meetingDate, meetingTime, meetingPoint, contactPerson, eventName], (error, result) => {
+                    // skriv dette i sluttrapporten: Det var vanskelig å få til denne spørringen da vi slurva med datatyper.
+                    // connection.query( 'SELECT EXISTS (SELECT * FROM Medlemmer WHERE Brukernavn = ? AND Passord = ?', [username, password], (error, result) => {
+                    // connection.query('SELECT * FROM Medlemmer where Brukernavn=?', [username], (error, result) => {
+                    // connection.query('SELECT CASE WHEN EXIST ( SELECT * FROM Medlemmer WHERE Brukernavn = ?, Passord = ? ) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END', [username, password], (error, result) => {
+
+                    if (error) {
+                        reject(error);
+                        return;
+                    }
+                    resolve(result[1]);
+                });
+        });
+    }
 }
+
 let roleService = new RoleService;
 
 //jobb med CrewService: Joine tabeller?
@@ -127,9 +150,9 @@ class MemberService {
             });
         });
     }
-    getMember(id) : Promise<void> {
+    getMember(ID) : Promise<void> {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM Medlemmer Where id = ?', [id], (error, result) => {
+            connection.query('SELECT * FROM Medlemmer Where ID = ?', [ID], (error, result) => {
                 if(error) {
                     reject(error);
                     return;
