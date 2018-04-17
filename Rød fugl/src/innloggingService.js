@@ -139,9 +139,35 @@ class CrewService {
 let crewService = new CrewService;
 // Class that performs database queries related to members
 class MemberService {
+  addMember(
+    username: string,
+    name: string,
+    middlename: string,
+    surname: string,
+    email: string,
+    passord: string,
+    birthdate: Date,
+    phone: string,
+    adress: string)
+    : Promise<void> {
+      return new Promise((resolve, reject) => {
+        connection.query(
+          'INSERT INTO Medlemmer (Brukernavn, Passord, Fornavn, Mellomnavn, Etternavn, Telefon, Gateadresse, Fødselsdato, Epost) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?)', [username, passord, name, middlename, surname, phone, adress, birthdate, email], (error, result) => {
+
+          console.log("Sendt " + username + name + middlename + surname + email + passord + birthdate + adress + phone);
+
+          if(error) {console.log(error)
+          reject(error)}
+          return;
+
+          resolve(result[1]);
+        });
+      });
+    }
+
     getMembers() : Promise<void> {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM Medlemmer', (error, result) => {
+            connection.query('SELECT * FROM Medlemmer WHERE KontoAktiv=?', [1], (error, result) => {
                 if(error) {
                     reject(error);
                     return;
@@ -150,6 +176,34 @@ class MemberService {
             });
         });
     }
+
+    getOtherMembers(id) : Promise<void> {
+        return new Promise((resolve, reject) => {
+            connection.query('SELECT * FROM Medlemmer WHERE KontoAktiv=? AND ID!=?', [1, id], (error, result) => {
+                if(error) {
+                    console.log("Test:"+error);
+                    reject(error);
+                    return;
+                }
+                resolve(result);
+            });
+        });
+    }
+
+    getMemberBySearch(search: string) : Promise<void> {
+      return new Promise ((resolve, reject) => {
+        connection.query('SELECT * FROM Medlemmer WHERE (Fornavn LIKE ? OR Mellomnavn LIKE ? OR Etternavn LIKE? OR Telefon LIKE ? OR Epost LIKE ?) AND KontoAktiv=1', [search, search, search, search, search], (error, result) => {
+            if(error) {
+              reject(error);
+              return;
+            }
+            console.log(result);
+            resolve(result);
+        })
+      })
+    }
+
+
     getMember(id) : Promise<void> {
         return new Promise((resolve, reject) => {
             connection.query('SELECT * FROM Medlemmer Where id = ?', [id], (error, result) => {
@@ -162,9 +216,19 @@ class MemberService {
         });
     }
 
-    changeMembers(id, fornavn, text) : Promise<void>{
+    changeMembers(
+      id: number,
+      fornavn: string,
+      mellomnavn: string,
+      etternavn: string,
+      telefon: string,
+      gateadresse: string,
+      postnummer: string,
+      fødselsdato: Date,
+      epost: string
+    ) : Promise<void>{
         return new Promise((resolve, reject) => {
-            connection.query('UPDATE Medlemmer SET fornavn = ?, text = ? WHERE id = ?', [fornavn, text, id], (error, result) => {
+            connection.query('UPDATE Medlemmer SET Fornavn = ?, Mellomnavn=?, Etternavn=?, Telefon=?, Gateadresse=?, Postnummer=?, Fødselsdato=?, Epost=? WHERE id=?', [fornavn, mellomnavn, etternavn, telefon, gateadresse, postnummer, fødselsdato, epost, id], (error, result) => {
                 if(error) {
                     reject(error);
                     return;
@@ -173,9 +237,10 @@ class MemberService {
             });
         });
     }
+
     deleteMember(id) : Promise<void> {
         return new Promise((resolve, reject) => {
-            connection.query("DELETE FROM Medlemmer Where ID = ?", [id], (error, result) => {
+            connection.query("UPDATE Medlemmer SET KontoAktiv = 0 WHERE ID = ?", [id], (error, result) => {
                 if(error) {
                     reject(error);
                     return;
@@ -184,6 +249,27 @@ class MemberService {
             });
         });
     }
+
+    checkAccountDetailsFromUsernameAndEmail(username:string, email:string) : Promise<void> {
+         return new Promise((resolve, reject) => {
+           connection.query('SELECT * From Medlemmer WHERE BINARY Brukernavn=? OR Epost=?', [username, email], (error, result) => {
+
+             console.log("Username&Mail: " + result);
+
+             if(error) {
+               reject(error);
+               return;
+             }
+
+             if(result=="") {
+               resolve(result=false);
+               return;
+             }
+
+             resolve(result[0]);
+           });
+         })
+   }
 }
 
 let memberService = new MemberService();
@@ -305,4 +391,4 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
 }
 let eventService = new EventService();
 //skrev Eventa fordi Event er et reservert ord
-  export { User, userService, Eventa, eventService, memberService, roleService, crewService, forgottonPasswordService };
+export { User, userService, Eventa, eventService, memberService, roleService, crewService, forgottonPasswordService };

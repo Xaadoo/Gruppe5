@@ -63,6 +63,7 @@ class Menu extends React.Component<{}> {
                     <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/crew'>Mannskap</NavLink>{' '}</li>
                     <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/roles'>Roller</NavLink>{' '}</li>
                     <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/mypage'>Min Side</NavLink>{' '}</li>
+                    <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/members'>Medlemmer</NavLink>{' '}</li>
                     <li className={"navli"}><NavLink activeStyle={{color: 'white'}} to='/signout'>Logg ut</NavLink>{' '}</li>
                     <li className={"aboutli"}><NavLink activeStyle={{color: 'white'}} to='/about'>Om</NavLink>{' '}</li>
                 </ul>
@@ -72,6 +73,7 @@ class Menu extends React.Component<{}> {
     return (
       <div>
         <NavLink activeStyle={{color: 'red'}} to='/signin'>Logg inn</NavLink>{' '}
+        <NavLink activeStyle={{color: 'red'}} to='/newmember'>Ny Bruker</NavLink>{' '}
         <NavLink activeStyle={{color: "red"}} to="/forgottonpassword">Glemt passord</NavLink>{" "}
       </div>
     );
@@ -163,6 +165,86 @@ class SignIn extends React.Component<{}> {
 let validationNumberForForgottonPassword;
 let emailForForgottonPassword;
 let accountNameForForgottonPassword;
+
+class NewMember extends React.Component<{}> {
+  Refs: {
+      username:HTMLInputElement,
+      name:HTMLInputElement,
+      middlename:HTMLInputElement,
+      surname:HTMLInputElement,
+      email:HTMLInputElement,
+      passord:HTMLInputElement,
+      passordRe:HTMLInputElement,
+      birthdate:HTMLInputElement,
+      adress:HTMLInputElement,
+      phone:HTMLInputElement,
+      addMemberButton:HTMLButtonElement,
+      submitMember:HTMLInputElement
+  }
+
+  render() {
+    return <div>
+    <h1> Ny Bruker </h1>
+    <form ref="submitMember">
+    <div>Brukernavn: <input type="text" ref="username" placeholder="OleBekk" required/></div>
+    <div>Fornavn: <input type="text" ref="name" placeholder="Ole" required/></div>
+    <div>Mellomnavn: <input type="text" ref="middlename" placeholder="McPearson"/></div>
+    <div>Etternavn: <input type="text" ref="surname" placeholder="Hansen" required/></div>
+
+    <div>E-mail:  <input type="email" ref="email" placeholder="mail@ntnu.no" required/></div>
+    <div>Passord:  <input type="password" ref="passord" placholder="Passord" required/></div>
+    <div>Gjenta passord:  <input type="password" ref="passordRe"/></div>
+
+
+    <div>Fødselsdato:  <input type="date" ref="birthdate" required/></div>
+    <div>Adresse:  <input type="text" ref="adress" placeholder="Oslogata 34a" required/></div>
+    <div>Mobilnummer:  <input type="text" ref="phone" placeholder="11225588" required/></div>
+
+    <input type="submit" ref="addMemberButton" value="Opprett Bruker"/>
+    </form>
+    </div>
+  }
+  componentDidMount() {
+    newmember = this;
+    this.refs.submitMember.onsubmit = () => {
+
+      memberService.checkAccountDetailsFromUsernameAndEmail(this.refs.username.value, this.refs.email.value).then((result) => {
+        console.log("Account: " + result);
+        if(result.Brukernavn==this.refs.username.value) {
+          errorMessage.set("Brukernavn opptatt.");
+        } else if (result.Epost==this.refs.email.value) {
+          errorMessage.set("Epost opptatt.");
+        } else if (this.refs.passord.value.length<10) {
+          errorMessage.set("Passord må være 10 eller flere karakterer langt.");
+        } else if (this.refs.passord.value!=this.refs.passordRe.value) {
+          errorMessage.set("Passord matcher ikke.");
+        } else if (result==false) {
+          memberService.addMember(
+                                this.refs.username.value,
+                                this.refs.name.value,
+                                this.refs.middlename.value,
+                                this.refs.surname.value,
+                                this.refs.email.value,
+                                this.refs.passord.value,
+                                this.refs.birthdate.value,
+                                this.refs.phone.value,
+                                this.refs.adress.value).then(console.log("THEN"), errorMessage.set("Bruker opprettet!")).catch((error: Error) => {
+              if(errorMessage) errorMessage.set("Error making new profile.");
+            });
+        }
+      }).catch((error: Error) => {
+        if(errorMessage) errorMessage.set("Error getting account details")
+      });
+    };
+  }
+
+  componentWillUnmount() {
+    newmember = null;
+  }
+
+}
+let newmember: ?NewMember;
+let submitMember;
 
 class ForgottonPassword extends React.Component<{}> {
     refs: {
@@ -615,73 +697,138 @@ class AddRole extends React.Component<{}> {
 }
 
 class MyPage extends React.Component<{}> {
-constructor(props) {
-    super(props);
-
-    this.ID = props.match.params.ID;
-    this.Brukernavn = "";
-    this.Fornavn = "";
-    this.Etternavn = "";
-    this.Telefon = "";
-    this.Gateadresse = "";
-    this.Postnummer = "";
-    this.Fødselsdato = "";
-    this.Epost = "";
-}
+  Refs: {
+    userID:HTMLOutputElement,
+    changeUsername:HTMLOutputElement,
+    changeFirstname:HTMLInputElement,
+    changeMiddlename:HTMLInputElement,
+    changeSurname:HTMLInputElement,
+    changeTelephone:HTMLInputElement,
+    changeAddress:HTMLInputElement,
+    changeZipcode:HTMLInputElement,
+    changeDateOfBirth:HTMLInputElement,
+    changeEmail:HTMLInputElement,
+    changeButton:HTMLButtonElement,
+    submitChange:HTMLInputElement
+  }
 
   render() {
     return (
             <div>
               <h1>Min side</h1>
+              <form ref="submitChange">
                 <div>
-                    Medlem id: {this.ID} <br/>
-                    Brukernavn {this.Brukernavn} <br/> <input type='text' ref='changeUsername'  /><br/>
-                    Fornavn: {this.Fornavn} <br/>      <input type='text' ref='changeFirstname'  /><br/>
-                    Etternavn: {this.Etternavn}        <input type='text' ref='changeSurname'  /><br/>
-                    Telefon: {this.Telefon}            <input type='text' ref='changeTelephone'  /><br/>
-                    Gateadresse: {this.Gateadresse}    <input type='text' ref='changeAddress'  /><br/>
-                    Postnummer: {this.Postnummer}      <input type='text' ref='changeZipcode'  /><br/>
-                    Fødselsdato: {this.Fødselsdato}    <input type='date' ref='changeDateOfBirth'  /><br/>
-                    E-post: {this.Epost}               <input type='text' ref='changeEmail'  /><br/>
+                    Medlem id: <output ref="userID"/> <br/>
+                    Brukernavn: <output type='text' ref='changeUsername'  /><br/>
+                    Fornavn: <input type='text' ref='changeFirstname'  /><br/>
+                    Mellomnavn: <input type='text' ref='changeMiddlename'  /><br/>
+                    Etternavn: <input type='text' ref='changeSurname'  /><br/>
+                    Telefon: <input type='text' ref='changeTelephone'  /><br/>
+                    Gateadresse: <input type='text' ref='changeAddress'  /><br/>
+                    Postnummer: <input type='text' ref='changeZipcode'  /><br/>
+                    Fødselsdato:  <input type='date' ref='changeDateOfBirth'  /><br/>
+                    E-post: <input type='email' ref='changeEmail'  /><br/>
 
-                    <button ref = "changeButton">Endre</button>
-                    {}
+                    <input type="submit" ref="changeButton" value="Endre"/>
                 </div>
+              </form>
             </div>
-    );
+    )
   }
-componentDidMount() {
-    memberService.getMember(this.ID).then((members) => {
-        this.Brukernavn= member.Brukernavn;
-        this.Fornavn= member.Fornavn;
-        this.Etternavn= member.Etternavn;
-        this.Telefon= member.Telefon;
-        this.Gateadresse= member.Gateadresse;
-        this.Postnummer= member.Postnummer;
-        this.Fødselsdato= member.Fødselsdato;
-        this.Epost= member.Epost;
-        this.forceUpdate();
 
-    }).catch((error) => {
-        if(errorMessage) errorMessage.set('Error getting member: ' + error.message);
-    });
-    this.refs.changeButton.onclick = () => {
-        memberService.changeMembers(this.ID, this.refs.changeUsername.value, this.refs.changeFirstname.value, this.refs.changeSurname.value, this.refs.changeTelephone.value, this.refs.changeAddress.value, this.refs.changeZipcode.value, this.refs.changeDateOfBirth.value, this.refs.changeEmail.value).then( () => {
-            this.componentDidMount();
-        }).catch((error) => {
+  componentDidMount() {
+    let member = userService.getSignedInUser();
+    member.Fødselsdato = new Date(member.Fødselsdato);
+
+        this.refs.userID.value = member.ID;
+        this.refs.changeUsername.value = member.Brukernavn;
+        this.refs.changeFirstname.value = member.Fornavn;
+        this.refs.changeMiddlename.value = member.Mellomnavn;
+        this.refs.changeSurname.value = member.Etternavn;
+        this.refs.changeTelephone.value = member.Telefon;
+        this.refs.changeAddress.value = member.Gateadresse;
+        this.refs.changeZipcode.value = member.Postnummer;
+        this.refs.changeDateOfBirth.valueAsDate = member.Fødselsdato;
+        this.refs.changeEmail.value = member.Epost;
+
+    this.refs.submitChange.onsubmit = () => {
+        memberService.changeMembers(member.ID, this.refs.changeFirstname.value, this.refs.changeMiddlename.value, this.refs.changeSurname.value, this.refs.changeTelephone.value, this.refs.changeAddress.value, this.refs.changeZipcode.value, this.refs.changeDateOfBirth.valueAsDate, this.refs.changeEmail.value).then(
+          memberService.getMember(member.ID).then((result)=> {
+          localStorage.setItem('signedInUser', JSON.stringify(result))
+        }),
+        ).catch((error) => {
             if(errorMessage) errorMessage.set('Error getting member: ' + error.message);
         });
+      }
     }
+  componentWillUnmount() {
+    myPage = null;
+  }
 }
+let myPage: ?MyPage
 
-  // Called when the this.props-object change while the component is mounted
-  // For instance, when navigating from path /user/1 to /user/2
-  componentWillReceiveProps() {
-      this.ID= newProps.match.params.ID;
-      this.componentDidMount();
-      // To update the view and show the correct note data, rerun database query here
+class Members extends React.Component<{}> {
+  constructor() {
+    super();
+
+    this.memberList = [];
+  }
+
+  Refs: {
+    searchButton:HTMLButtonElement,
+    search:HTMLInputElement
+  }
+
+  render() {
+    let listMembers = [];
+    for(let member of this.memberList) {
+        listMembers.push(<tr key={member.ID}><td>{member.Fornavn}</td><td>{member.Mellomnavn}</td><td>{member.Etternavn}</td><td>{member.Epost}</td><td>{member.Telefon}</td></tr>)
+      }
+    return <div>
+
+      <h1>Medlemmer</h1>
+      <input type="text" placeholder="Ole / ole@mail.no / 99887766" ref="search"/> <button ref="searchButton" className= "button">Søk</button>
+        <table id = "roletable">
+            <tbody>
+              <tr>
+                <th>Fornavn</th> <th>Mellomnavn</th> <th>Etternavn</th> <th>Epost</th> <th>Telefon</th>
+              </tr>
+              {listMembers}
+            </tbody>
+        </table>
+
+    </div>
+  }
+
+  componentDidMount() {
+    memberPage = this;
+    let user = userService.getSignedInUser();
+    memberService.getOtherMembers(user.ID).then(
+      (result) => {
+        this.memberList = result;
+        console.log(this.memberList);
+        console.log(result);
+        this.forceUpdate();
+    }).catch()
+
+    this.refs.searchButton.onclick = () => {
+      let search = this.refs.search.value + "%";
+      console.log(search);
+      memberService.getMemberBySearch(search).then(
+        (returned) => {
+          this.memberList = returned;
+            this.forceUpdate();
+        }
+      )
     }
+  }
+
+  componentWillUnmount() {
+    memberPage = null;
+  }
+
 }
+let memberPage: ?Members
 
 class SignOut extends React.Component<{}> {
   refs: {
@@ -730,6 +877,7 @@ if(root) {
             <Route exact path="/forgottonpassword" component={ForgottonPassword} />
             <Route exact path="/forgottonpasswordvalidation" component={ForgottonPasswordValidation} />
             <Route exact path="/forgottonpasswordchange" component={ForgottonPasswordChange} />
+            <Route exact path='/newmember' component={NewMember} />
           <Route exact path='/event' component={Event} />
           <Route exact path='/addevent' component={AddEvent} />
             <Route exact path='/editevent/:idArrangementer' component={EditEvent} />
@@ -737,7 +885,8 @@ if(root) {
             <Route exact path='/addcrew' component={AddCrew} />
           <Route exact path='/roles' component={Roles} />
           <Route exact path='/addrole' component={AddRole} />
-          <Route exact path='/mypage:id' component={MyPage} />
+          <Route exact path='/mypage' component={MyPage} />
+          <Route exact path='/members' component={Members} />
             <Route exact path='/about' component={About} />
             <Route exact path='/' component={Home} />
         </Switch>
