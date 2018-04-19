@@ -2,6 +2,13 @@ h1 {
     color: #5e5e5e
 }
 
+div {
+    font-family: Sans-serif;
+}
+.bold {
+    font-weight: bold;
+}
+
 /*------------------------------------------------------------------
 [ Navbar ]*/
 .navigate {
@@ -557,3 +564,94 @@ h1 {
     background-color: #f44336;
     color: white;
 }
+
+.input {
+     font-family: Sans-serif;
+     font-size: 15px;
+     color: #000000;
+     line-height: 1;
+     border: 2px solid #444444;
+     border-radius: 4px;
+
+     display: block;
+     width: 40%;
+     height: 35px;
+
+     padding: 5px;
+ }
+.inputE {
+    font-family: Sans-serif;
+    font-size: 15px;
+    color: #000000;
+    line-height: 1;
+    border: 2px solid #444444;
+    border-radius: 4px;
+
+    width: 250px;
+    height: 35px;
+
+    padding: 5px;
+}
+
+.inputBig {
+    font-family: Sans-serif;
+    font-size: 15px;
+    color: #000000;
+    line-height: 1;
+    border-radius: 4px;
+
+    height: 80px;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    border: 2px solid #444444;
+    border-radius: 4px;
+    resize: none;
+
+    display: block;
+    width: 40%;
+
+    padding: 5px;
+}
+
+.inputSmall {
+    font-family: Sans-serif;
+    font-size: 15px;
+    color: #000000;
+    line-height: 1;
+    border: 2px solid #444444;
+    border-radius: 4px;
+
+    width: 10%;
+    height: 35px;
+
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-right: 5px;
+
+    padding: 5px;
+}
+
+inputSmall[type=text]:focus {
+    border: 3px solid red;
+}
+
+#calendar {
+    max-width: 900px;
+    margin: 40px auto;
+}
+
+.search[type=text] {
+    width: 250px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: white;
+    background-image: url('search.png');
+    background-position: 10px 10px;
+    background-repeat: no-repeat;
+    padding: 12px 20px 12px 40px;
+    -webkit-transition: width 0.4s ease-in-out;
+    transition: width 0.4s ease-in-out;
+}
+
