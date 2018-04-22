@@ -107,8 +107,10 @@ class Menu extends React.Component<{}> {
 
 let menu: ?Menu;
 
-// This is the page for signing in
+// This is the page for signing in and it only shows up if your not signed in
 class SignIn extends React.Component<{}> {
+  
+  // Refs used in the class
   refs: {
     signInUsername: HTMLInputElement,
     signInPassword: HTMLInputElement,
@@ -116,6 +118,8 @@ class SignIn extends React.Component<{}> {
   };
 
   render() {
+        // In this return statment is all the items we see in the page or the places they are made if they are made after
+        // the component is mounted.
         return (
             <div className ="limiter">
                 <div className ="container-login100" style={ { backgroundImage: `url(require("image-background.jpg"))` } }>
@@ -158,7 +162,9 @@ class SignIn extends React.Component<{}> {
     if(menu) {
         menu.forceUpdate();
     }
-
+    
+    // Function for the sign in button when you click it and your informasjon is correct you got to the home page
+    // It also checks if your an admin or not
     this.refs.signInButton.onclick = () => {
       userService.signIn(this.refs.signInUsername.value, this.refs.signInPassword.value).then(() => {
 
@@ -184,11 +190,9 @@ class SignIn extends React.Component<{}> {
   }
 }
 
-let validationNumberForForgottonPassword;
-let emailForForgottonPassword;
-let accountNameForForgottonPassword;
-
+// This is the class that for making a new user
 class NewMember extends React.Component<{}> {
+  // Refs used in this class
   Refs: {
       username:HTMLInputElement,
       name:HTMLInputElement,
@@ -205,7 +209,7 @@ class NewMember extends React.Component<{}> {
       submitMember:HTMLInputElement,
       goBack:HTMLButtonElement
   }
-
+  
   render() {
         return <div>
             <div className ="limiter">
@@ -245,9 +249,12 @@ class NewMember extends React.Component<{}> {
 }
   componentDidMount() {
     newmember = this;
+    // Go back function for the go back button. It makes you go back to the sign in page
     this.refs.goBack.onclick = () => {
       history.push("/signIn");
     }
+    // This is the function for what happens when you click confirm your details and try to make your new account
+    // If there is something wrong with the detils you put in then it wont let you put it in and an error will show
     this.refs.submitMember.onsubmit = () => {
 
       memberService.checkAccountDetailsFromUsernameAndEmail(this.refs.username.value, this.refs.email.value).then((result) => {
@@ -289,7 +296,16 @@ class NewMember extends React.Component<{}> {
 let newmember: ?NewMember;
 let submitMember;
 
+
+// These are global variables for the forgotton password classes. Usually you wouldnt use global variables, but we have
+// and when we have we have made the name something that cannot be mistaken for something else. This is important
+let validationNumberForForgottonPassword;
+let emailForForgottonPassword;
+let accountNameForForgottonPassword;
+
+// This is the first of the forgotton password pages
 class ForgottonPassword extends React.Component<{}> {
+    // Refs used in the class
     refs: {
         emailAddress: HTMLInputElement,
         recoverPasswordButton: HTMLButtonElement,
@@ -321,10 +337,14 @@ class ForgottonPassword extends React.Component<{}> {
 }
 
     componentDidMount() {
+        // Go back to the sign in page button
         this.refs.backButton.onclick = () => {
           history.push("/signIn");
         }
-
+        
+        // This is the function for the button where you request to change your password because you forgot it
+        // It will find the account connected to your email and send you a validation code.
+        // If no account is found with that email it will say so
         this.refs.recoverPasswordButton.onclick = () => {
             forgottonPasswordService.getUserFromEmail(this.refs.emailAddress.value).then((result) => {
                 accountNameForForgottonPassword = result.Fornavn;
@@ -335,7 +355,6 @@ class ForgottonPassword extends React.Component<{}> {
             forgottonPasswordService.getUserFromEmailCheck(this.refs.emailAddress.value).then(() => {
                 validationNumberForForgottonPassword = (Math.floor(Math.random() * 9999));
                 emailForForgottonPassword = this.refs.emailAddress.value;
-                console.log(validationNumberForForgottonPassword);
                 forgottonPasswordService.sendEmail(this.refs.emailAddress.value, validationNumberForForgottonPassword, accountNameForForgottonPassword)
                 history.push("/ForgottonPasswordValidation")
             }).catch((error: Error) => {
@@ -345,6 +364,7 @@ class ForgottonPassword extends React.Component<{}> {
     }
 }
 
+// This is the page where it asks you for a validation code for changing your password
 class ForgottonPasswordValidation extends React.Component<{}> {
     refs: {
         validatingNumberInput: HTMLInputElement,
@@ -373,11 +393,12 @@ class ForgottonPasswordValidation extends React.Component<{}> {
 }
 
     componentDidMount() {
+        // Go back button
         this.refs.backButton.onclick = () => {
           history.push("/signIn");
         }
 
-        console.log(validationNumberForForgottonPassword);
+        // Checks if the validation code you typed inn was correct
         this.refs.validatingButton.onclick = () => {
             if(this.refs.validatingNumberInput.value == validationNumberForForgottonPassword) {
                 history.push("/ForgottonPasswordChange");
@@ -388,6 +409,8 @@ class ForgottonPasswordValidation extends React.Component<{}> {
     }
 }
 
+// This is the class that shows at the final stage of forgotton password operation.
+// Here you can change your password
 class ForgottonPasswordChange extends React.Component<{}> {
     refs: {
         passwordChangeInput: HTMLInputElement,
@@ -421,10 +444,13 @@ class ForgottonPasswordChange extends React.Component<{}> {
 }
 
     componentDidMount() {
+        // Go back button function
         this.refs.backButton.onclick = () => {
           history.push("/signIn");
         }
 
+        // This is the function Where it changes your password and matches the two input fields to each other
+        // This is to make sure you dont type in the wrong password when you are changing it
         this.refs.changePasswordButton.onclick = () => {
             if (this.refs.passwordChangeInput.value == this.refs.passwordConfirmChangeInput.value) {
                 forgottonPasswordService.changePassword(emailForForgottonPassword, this.refs.passwordChangeInput.value).then(() => {
@@ -439,34 +465,43 @@ class ForgottonPasswordChange extends React.Component<{}> {
     }
 }
 
+
+// This is a array for all the events on the calendar
 let eventsForCalendarInHomeClass = [];
+// This is the class for the home page with the calendar with all the events
 class Home extends React.Component<{}> {
 
     componentDidMount() {
+      // Because of an eariler bug it will only show the calender when a user is signed in
       let signedInUser = userService.getSignedInUser();
       if(signedInUser) {
         this.getEvents();
         this.createCalendar();
       }
     }
-
+    
+    // This method creates the calendar
     createCalendar() {
       $("#calendar").fullCalendar({
         defaultView: 'month',
         height: 'auto',
+        // Here we get the events from the array
         events: eventsForCalendarInHomeClass,
         eventColor: "#ed2e2e",
+        // Here we set it so that when you click an event it will make you go to that event
         eventClick: function(calEvent, jsEvent, view) {
             history.push("/editevent/" + calEvent.id)
         }
       })
     }
-
+    
+    // This is a method for updating the calendar
     updateCalendar() {
       $('#calendar').fullCalendar('destroy');
       this.createCalendar();
     }
-
+    
+    // This method will get all the events and put the inside the array which is used in the createCalendar method
     getEvents() {
       eventService.getEvents().then((result) => {
         eventsForCalendarInHomeClass = [];
@@ -499,6 +534,7 @@ class Home extends React.Component<{}> {
 
 }
 
+// This is the class for the page where you add an event
 class AddEvent extends React.Component<{}> {
     constructor() {
         super();
@@ -521,6 +557,7 @@ class AddEvent extends React.Component<{}> {
     };
 
     render() {
+      // Here you make an array with all the contact persons
       let listContacts = [<option>Velg Kontaktperson</option>];
       for(let contact of this.external) {
           listContacts.push( <option key={contact.EksternKontaktID} value={contact.EksternKontaktID}> {contact.Fornavn + " " + contact.Mellomnavn + " " + contact.Etternavn} </option> );   //bruker key prop for optimalisering
@@ -550,13 +587,14 @@ class AddEvent extends React.Component<{}> {
     }
 
     componentDidMount() {
+        // This method gets all the contacts from the database and puts them in this.external
         externalService.getContacts().then((res) => {
           this.external = res;
           this.forceUpdate();
         });
 
         // This function gets every value from the input-fields and uses a query from the service-file.
-        // The method eventService.addEvent makes it possible to add events to the databas
+        // The method eventService.addEvent makes it possible to add events to the database
         this.refs.addEventButton.onclick = () => {
             eventService.addEvent(this.refs.addEventName.value,
                 this.refs.addZipCode.value,
@@ -570,7 +608,6 @@ class AddEvent extends React.Component<{}> {
                 this.refs.addMeetingTime.value,
                 this.refs.addContactPerson.value).then((id) => {
                 history.push('/addevent/'+id);
-                console.log("Arrangmenet lagt til!");
             }).catch((error: Error) => {
                 if(errorMessage) errorMessage.set("Error adding the event.");
             });
@@ -579,6 +616,7 @@ class AddEvent extends React.Component<{}> {
 
 }
 
+// This is the class for the page where you see all the events
 class Event extends React.Component<{}> {
   constructor() {
     super();
@@ -588,8 +626,9 @@ class Event extends React.Component<{}> {
   render() {
     let member = userService.getSignedInUser();
     let myList = [];
+    // This is a for loop that makes the accept or deny shift buttons and checks if you have accept or denied.
+    // It also makes the list where it shows you the events you have been signed up for
     for(let event of this.myEventList) {
-      console.log(event);
       let check;
       let check2;
       if (event.Godkjenning==1) {
@@ -600,12 +639,14 @@ class Event extends React.Component<{}> {
         myList.push(<tr key={event.VaktRolleId}> <td>{event.OppmoteDato.toString().substring(0, 10)}</td> <NavLink activeStyle={{color: 'red'}} to={'/editevent/'+event.idArrangementer}> <td>{event.Arrangement_Navn}</td></NavLink> <td>{event.Rolle}</td> <td>{check}{check2}</td> </tr>)
     }
 
-
+    
+    // This for loop makes all the events appear in a table
     let listEvents = [];
     for(let eventa of this.events) {
         listEvents.push(<tr key={eventa.idArrangementer}><td>{eventa.OppmoteDato.toString().substring(0, 10)}</td><NavLink activeStyle={{color: 'red'}} to={'/editevent/'+eventa.idArrangementer}><td>{eventa.Arrangement_Navn}</td></NavLink><td>{eventa.Beskrivelse}</td></tr>) //bruker key prop for optimalisering
       }
-
+    
+    // Heres what the admins see on the page
     if (localStorage.getItem("adminCheckVariable") == 1) {
       return (
             <div>
@@ -640,7 +681,9 @@ class Event extends React.Component<{}> {
                 <button className= "button" ref="goToEventButton">Opprett arrangement</button>
             </div>
           );
-    } if (localStorage.getItem("adminCheckVariable") == 0) {
+    } 
+    // Heres what the members see
+    if (localStorage.getItem("adminCheckVariable") == 0) {
       return (
             <div>
                  <div>
@@ -681,22 +724,25 @@ class Event extends React.Component<{}> {
   componentDidMount() {
     let member = userService.getSignedInUser();
       this.getMyEvents(member.ID);
+      // Here we get all the events and puts them in this.events
       eventService.getEvents().then((events) => {
           this.events = events;
           this.forceUpdate();
       }).catch((error) => {
           if (errorMessage) errorMessage.set('Error getting notes: ' + error.message);
       });
+      // Here we go to a button only for admins
       if (localStorage.getItem("adminCheckVariable") == 1) {
+      // This is the function for the button to go to the add an event
       this.refs.goToEventButton.onclick = () => {
           history.push('/addevent');
-          console.log("Hoppet til addevent");
       };
     }
 
 
   }
-
+  
+  // Gets all of your events and puts them in this.myEventsList
   getMyEvents(ID) {
     eventService.getMembersEvents(ID).then((res) => {
       console.log(res);
@@ -704,14 +750,15 @@ class Event extends React.Component<{}> {
       this.forceUpdate();
     })
   }
-
+   
+    // This is the method that updates the database with if you accepted or denied the shift
   eventAnswer(myId, vaktRolleId, answer) {
     rosterService.addToEventRosterByVaktRolleId(myId, vaktRolleId, answer).then((res) => {
-      console.log(res);
       this.componentDidMount();
     })
   }
-
+  
+  // This is the method that gives you your shift points when you accept a shift
   shiftPoints(id) {
     memberService.getMember(id).then((result) => {
       let vaktpoeng = result.Vaktpoeng;
@@ -723,7 +770,6 @@ class Event extends React.Component<{}> {
   }
 
 }
-
 
 class EditEvent extends React.Component {
     constructor(props) {
