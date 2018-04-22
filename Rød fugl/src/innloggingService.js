@@ -225,6 +225,18 @@ class MemberService {
         });
       }
 
+    giveMemberVaktPoeng(vaktpoeng, id) : Promise<void> {
+      return new Promise((resolve, reject) => {
+        connection.query("UPDATE Medlemmer SET Vaktpoeng=? WHERE ID=?", [vaktpoeng, id], (error, result) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(result);
+        });
+      });
+    }
+
     getMembers() : Promise<void> {
         return new Promise((resolve, reject) => {
             connection.query('SELECT * FROM Medlemmer WHERE KontoAktiv=? ORDER BY Etternavn ASC', [1], (error, result) => {
@@ -635,7 +647,7 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
 
   getMembersEvents(memberId) : Promise<void> {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM ArrangHarMedlem am LEFT JOIN Arrangementer a ON am.idArrangementer=a.idArrangementer WHERE am.ID=? ORDER BY OppmoteDato ASC', [memberId], (error, result) => {
+      connection.query('SELECT * FROM ArrangHarMedlem am LEFT JOIN Arrangementer a ON am.idArrangementer=a.idArrangementer LEFT JOIN Roller r on am.rolle_id=r.rolle_id WHERE am.ID=? ORDER BY OppmoteDato ASC', [memberId], (error, result) => {
           if(error) {
               reject(error);
               return;
@@ -667,7 +679,7 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
       from_name: "Rød Fugl",
       to_email: emailTo,
       message_html1: "Du har blitt påmeldt til vakt på " + arrangementNavn + "!",
-      message_html2: "Her er all informasjonen du trenger om arrangement! Gå inn på din side i Rød Fugl for å bekrefte vakten!",
+      message_html2: "Her er all informasjonen du trenger om arrangement! Gå inn på arrangementer i Rød Fugl for å bekrefte vakten!",
       message_html3: "Beskrivelse: " + arrangementBeskrivelse + ". Postnummer: " + arrangementPostnummer + ". Startdato: " + startDato + ". SluttDato: " + sluttDato + ". Starttidspunkt: " + startTid + ". Slutttidspunkt: " + sluttTid + ". Oppmøtedato: " + oppMoteDato + ". Oppmøtetidspunkt: " + oppMoteTidspunkt + ". Oppmøtested: " + oppMoteSted + ". Kontaktperson: " + kontaktPerson + "."
     })
   }

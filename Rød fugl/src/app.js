@@ -567,6 +567,7 @@ class Event extends React.Component<{}> {
     this.events = [];
   }
   render() {
+    let member = userService.getSignedInUser();
     let myList = [];
     for(let event of this.myEventList) {
       console.log(event);
@@ -575,9 +576,9 @@ class Event extends React.Component<{}> {
       if (event.Godkjenning==1) {
         check = "Godkjent";
       } else if (event.Godkjenning==2) {check = "Avslått";
-    } else { check = <button onClick={()=>this.eventAnswer(event.ID, event.VaktRolleId, 1)}>Godkjenn</button>;
+    } else { check = <button onClick={()=>(this.eventAnswer(event.ID, event.VaktRolleId, 1), this.shiftPoints(member.ID))}>Godkjenn</button>;
                check2 = <button onClick={()=>this.eventAnswer(event.ID, event.VaktRolleId, 2)}>Avslå</button> }
-        myList.push(<tr key={event.VaktRolleId}> <td>{event.OppmoteDato.toString().substring(0, 10)}</td> <NavLink activeStyle={{color: 'red'}} to={'/editevent/'+event.idArrangementer}> <td>{event.Arrangement_Navn}</td></NavLink> <td>{check}{check2}</td> </tr>)
+        myList.push(<tr key={event.VaktRolleId}> <td>{event.OppmoteDato.toString().substring(0, 10)}</td> <NavLink activeStyle={{color: 'red'}} to={'/editevent/'+event.idArrangementer}> <td>{event.Arrangement_Navn}</td></NavLink> <td>{event.Rolle}</td> <td>{check}{check2}</td> </tr>)
     }
 
 
@@ -596,6 +597,7 @@ class Event extends React.Component<{}> {
                         <tr>
                             <th>Oppmøtedato</th>
                             <th>Påmeldte Arrangement</th>
+                            <th> Rolle </th>
                             <th>Status</th>
                         </tr>
                           {myList}
@@ -629,6 +631,7 @@ class Event extends React.Component<{}> {
                          <tr>
                             <th>Oppmøtedato</th>
                             <th>Påmeldte Arrangement</th>
+                            <th> Rolle </th>
                             <th>Status</th>
                          </tr>
                            {myList}
@@ -690,6 +693,16 @@ class Event extends React.Component<{}> {
     })
   }
 
+  shiftPoints(id) {
+    memberService.getMember(id).then((result) => {
+      let vaktpoeng = result.Vaktpoeng;
+      vaktpoeng += 10;
+      memberService.giveMemberVaktPoeng(vaktpoeng, id).then(() => {
+
+      });
+    });
+  }
+
 }
 
 
@@ -744,7 +757,7 @@ class EditEvent extends React.Component {
              else { check = "Venter"}
 
           if (roster.ID != null) {
-            button = <button className="button" onClick={() => {this.remove(roster.VaktRolleId)}}>Tøm</button>;
+            button = <button className="button" onClick={() => {this.remove(roster.VaktRolleId), this.shiftPoints(roster.Godkjenning, roster.ID)}}>Tøm</button>;
             rosterList.push(<tr key={roster.VaktRolleId}><td>{roster.Rolle}</td><td>{roster.Fornavn} {roster.Etternavn}</td><td>{roster.Telefon}</td> <td>{check}</td> {button2} {button}</tr>)
           }
 
@@ -1013,6 +1026,18 @@ class EditEvent extends React.Component {
             });
 
 
+    }
+
+    shiftPoints(id, check) {
+      if (check == 1) {
+        memberService.getMember(id).then((result) => {
+          let vaktpoeng = result.Vaktpoeng;
+          vaktpoeng -= 10;
+          memberService.giveMemberVaktPoeng(vaktpoeng, id).then(() => {
+          this.componentDidMount();
+          });
+        });
+      }
     }
 
     remove(VaktRolleId) {
@@ -1399,19 +1424,6 @@ class MyPage extends React.Component<{}> {
 
     render() {
 
-      let myList = [];
-      for(let event of this.myEventList) {
-        console.log(event);
-        let check;
-        let check2;
-        if (event.Godkjenning==1) {
-          check = "Godkjent";
-        } else if (event.Godkjenning==2) {check = "Avslått";
-      } else { check = <button onClick={()=>this.eventAnswer(event.ID, event.VaktRolleId, 1)}>Godkjenn</button>;
-                 check2 = <button onClick={()=>this.eventAnswer(event.ID, event.VaktRolleId, 2)}>Avslå</button> }
-          myList.push(<tr key={event.VaktRolleId}> <NavLink activeStyle={{color: 'red'}} to={'/editevent/'+event.idArrangementer}> <td>{event.Arrangement_Navn}</td></NavLink> <td>{check}{check2}</td> </tr>)
-      }
-
         return (
             <div>
                 <h1>Min side</h1>
@@ -1430,24 +1442,12 @@ class MyPage extends React.Component<{}> {
                     </div>
                         <input className="button1" type="submit" ref="changeButton" value="Endre"/>
                 </form>
-                <div>
-                    <table id = "bigTable">
-                        <tbody>
-                        <tr>
-                            <th>Arrangement</th>
-                            <th>Status</th>
-                        </tr>
-                          {myList}
-                        </tbody>
-                    </table>
-                </div>
             </div>
         )
     }
 
     componentDidMount() {
         let member = userService.getSignedInUser();
-        this.getMyEvents(member.ID);
         member.Fødselsdato = new Date(member.Fødselsdato);
 
         this.refs.userID.value = member.ID;
@@ -1472,21 +1472,6 @@ class MyPage extends React.Component<{}> {
             });
         }
 
-    }
-
-    getMyEvents(ID) {
-      eventService.getMembersEvents(ID).then((res) => {
-        console.log(res);
-        this.myEventList = res;
-        this.forceUpdate();
-      })
-    }
-
-    eventAnswer(myId, vaktRolleId, answer) {
-      rosterService.addToEventRosterByVaktRolleId(myId, vaktRolleId, answer).then((res) => {
-        console.log(res);
-        this.componentDidMount();
-      })
     }
 
     componentWillUnmount() {
