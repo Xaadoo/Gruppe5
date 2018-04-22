@@ -771,6 +771,7 @@ class Event extends React.Component<{}> {
 
 }
 
+// Recieves an event ID and fetches the event details and role list to show them. If user is admin he can edit them.
 class EditEvent extends React.Component {
     constructor(props) {
         super(props);
@@ -799,7 +800,7 @@ class EditEvent extends React.Component {
         this.roster = [];
         this.eventInterested = [];
     }
-
+// Checking if user is an admin or normal user, if admin the event and role list will be rendered in editable HTML input elements, but if user is normal the elements will not be editable and see less elements from the role list.
     render() {
       let listContacts = [];
       for(let contact of this.external) {
@@ -810,7 +811,7 @@ class EditEvent extends React.Component {
       for(let inter of this.eventInterested) {
           interested.push(<tr key={inter.ID}><td>{inter.Fornavn} {inter.Mellomnavn} {inter.Etternavn}</td> <td> {inter.Telefon} </td></tr>)
       }
-
+// Checking if user is admin.
       if (localStorage.getItem("adminCheckVariable") == 1) {
         let rosterList = [];
         for(let roster of this.roster) {
@@ -929,6 +930,7 @@ class EditEvent extends React.Component {
 
               </div>
           );
+// checking for normal user.
       } if (localStorage.getItem("adminCheckVariable") == 0) {
         let rosterList = [];
         for(let roster of this.roster) {
@@ -984,7 +986,7 @@ class EditEvent extends React.Component {
       }
 
     }
-
+// Fetching the refs for buttons and details and coupling to outgoing functions/methods, depending on if the logged in user is admin or normal user to match the refs on the rendered HTML elements.
     componentDidMount() {
       if (localStorage.getItem("adminCheckVariable") == 1) {
         this.refs.changeButton.onclick = () => {
@@ -1007,13 +1009,14 @@ class EditEvent extends React.Component {
                 if(errorMessage) errorMessage.set('Error getting events: ' + error.message);
             });
         }
-
+// Fetches values for the new role button and adds new roles to the role list.
         this.refs.newRoleButton.onclick = () => {
           rosterService.addRoleToEvent(eventId, this.refs.newRole.value).then(
             this.componentDidMount()
           )
         }
 
+// Refers a button to place a selected member onto a selected role and sends an email to the users corresponding email.
         this.refs.enlistButton.onclick = () => {
           rosterService.addToEventRosterByVaktRolleId(this.refs.personsInput.value, this.refs.openListInput.value, 0).then(
             this.componentDidMount()
@@ -1030,11 +1033,12 @@ class EditEvent extends React.Component {
         }
       }
 
+// Fetches the external contacts to the selector
       externalService.getContacts().then((res) => {
         this.external = res;
         this.forceUpdate();
       });
-
+// Fetches the event details
         eventService.getEvent(this.idArrangementer).then((events) => {
             this.refs.changeTitle.value = events.Arrangement_Navn;
             this.refs.changeText.value = events.Beskrivelse;
@@ -1052,39 +1056,45 @@ class EditEvent extends React.Component {
         }).catch((error) => {
             if(errorMessage) errorMessage.set('Error getting events: ' + error.message);
         });
-
+// Gets the event ID value to the interest button
           this.getInterestButton(this.idArrangementer);
-
 
 
 
           let user = userService.getSignedInUser();
           let eventId = this.idArrangementer;
+
+// Fetching the people that are interested in the event.
             eventService.getInterestedInEvent(eventId).then((res) => {
-              console.log(res);
                 this.eventInterested = res;
                 this.forceUpdate();
             })
+
+// Fetching the people that are put on the event roster.
             rosterService.getRosterFromEvent(eventId).then((res) => {
                 this.roster = res;
                 this.forceUpdate();
             })
+
+// Fetching the 20 members with lowest points.
             memberService.getMembersVaktpoengAsc().then((res) => {
               this.points = res;
               this.forceUpdate();
             })
 
+// Fethcing roles that can be made
             roleService.getRoles().then((res) => {
               this.roles = res;
               this.forceUpdate();
             });
 
-
+// Fetching members list for members that can be placed on the roster
             rosterService.checkRosterForInvertedMembers(eventId).then((res) => {
                 this.personsOpen = res;
                 this.forceUpdate();
             });
 
+// Fetching open roster list
             rosterService.getOpenRoster(eventId).then((res) => {
               this.openRoster = res;
               this.forceUpdate();
@@ -1093,6 +1103,7 @@ class EditEvent extends React.Component {
 
     }
 
+// Function for reseting members points when removing them from the event roster IF they have gotten points for accepting the event role.
     shiftPoints(id, check) {
       if (check == 1) {
         memberService.getMember(id).then((result) => {
@@ -1105,22 +1116,22 @@ class EditEvent extends React.Component {
       }
     }
 
+// Function for removing a member from a role
     remove(VaktRolleId) {
       rosterService.addToEventRosterByVaktRolleId(null, VaktRolleId, null)
       this.componentDidMount();
     }
 
+// Function for removing a role on the roster
     removeRole(VaktRolleId) {
-      console.log(VaktRolleId);
       rosterService.deleteRosterByVaktRolleId(VaktRolleId);
       this.componentDidMount();
     }
 
+// Makes a button to indicate interest in the arrangement
     getInterestButton(ArrangementID) {
       let user = userService.getSignedInUser();
-      console.log(ArrangementID + " and " + user.ID );
       eventService.interestEventCheck(ArrangementID, user.ID).then((res) => {
-        console.log(res);
         if (res==undefined) {
               this.interest = <button className="button1" onClick={() => {
                 eventService.interestEvent(ArrangementID, user.ID);
@@ -1141,10 +1152,10 @@ class EditEvent extends React.Component {
     componentWillReceiveProps(newProps) {
         this.idArrangementer = newProps.match.params.idArrangementer;
         this.componentDidMount();
-        // To update the view and show the correct note data, rerun database query here
     }
 }
 
+// This class shows a list of crew templates and if user is admin a button to Add Crew.
 class Crew extends React.Component<{}> {
     constructor() {
         super();
@@ -1194,7 +1205,6 @@ class Crew extends React.Component<{}> {
       if (localStorage.getItem("adminCheckVariable") == 1) {
         this.refs.goToAddCrewButton.onclick = () => {
             history.push('/addcrew');
-            console.log("Hoppet til addCrew");
         };
       }
         crewService.getShiftTemplate().then((crews) => {
@@ -1208,11 +1218,13 @@ class Crew extends React.Component<{}> {
 }
 let crewList;
 
+// This page class comes from Crew. Can create new crew templates.
 class AddCrew extends React.Component<{}> {
     refs: {
         crewName: HTMLInputElement,
         addRoleButton: HTMLButtonElement
     };
+
     render() {
         return <div>
             <h1>Opprett mannskap</h1><br />
@@ -1221,13 +1233,13 @@ class AddCrew extends React.Component<{}> {
             <button className="button1" ref="addCrewButton" disabled="disabled">Opprett mannskap</button>
         </div>
     }
+
     componentDidMount() {
         this.refs.addCrewButton.onclick = () => {
             //her skal det stå eventList = this?
             crewService.addShiftTemplate(this.refs.crewName.value
                 ).then(() => {
                 history.push('/crew');
-                console.log("Mannskap lagt til!");
             }).catch((error: Error) => {
                 if(errorMessage) errorMessage.set("Error adding the crew.");
             });
@@ -1235,6 +1247,7 @@ class AddCrew extends React.Component<{}> {
     }
 }
 
+// This class page shows the users competences in a list and has an input to add more competences to the user.
 class MyCompetence extends React.Component<{}> {
   constructor() {
     super();
@@ -1294,7 +1307,6 @@ class MyCompetence extends React.Component<{}> {
 
     competenceService.getCompetences().then(
       (result) => {
-        console.log(result);
           this.newCompetenceList = result;
           this.forceUpdate();
       }
@@ -1308,7 +1320,7 @@ class MyCompetence extends React.Component<{}> {
 
 }
 
-
+// This page class has a list of roles and if logged in user is admin they can be clicked to go to edit role and there is a button to add new role.
 class Roles extends React.Component<{}> {
     constructor() {
         super();
@@ -1363,7 +1375,6 @@ class Roles extends React.Component<{}> {
       if (localStorage.getItem("adminCheckVariable") == 1) {
         this.refs.goToRoleButton.onclick = () => {
             history.push('/addrole');
-            console.log("Hoppet til addrole");
         };
       }
         roleService.getRoles().then((roles) => {
@@ -1372,10 +1383,10 @@ class Roles extends React.Component<{}> {
         }).catch((error) => {
             if (errorMessage) errorMessage.set('Error getting roles: ' + error.message);
         });
-        //eventList = this;
     }
 }
 
+// This page class comes from Roles. Here one can add new roles.
 class AddRole extends React.Component<{}> {
     refs: {
         roleName: HTMLInputElement,
@@ -1388,8 +1399,6 @@ class AddRole extends React.Component<{}> {
 
             Navn: <input className="input" type="text" ref="roleName" /><br />
             Beskrivelse: <input className="input" type="text" ref="roleDescription" />
-            Vaktmal:<br />
-            Kurs?: <br /><br />
 
             <button className="button" ref="addRoleButton">Opprett rolle</button>
         </div>
@@ -1401,7 +1410,6 @@ class AddRole extends React.Component<{}> {
                 this.refs.roleDescription.value
             ).then((rolle_id) => {
                 history.push('/roles');
-                console.log("Rolle lagt til!");
             }).catch((error: Error) => {
                 if(errorMessage) errorMessage.set("Error adding the role.");
             });
@@ -1409,6 +1417,7 @@ class AddRole extends React.Component<{}> {
     }
 }
 
+// This page class comes from Roles. Here one can edit the selected role.
 class EditRole extends React.Component<{}> {
     constructor(props) {
         super(props);
@@ -1461,10 +1470,10 @@ class EditRole extends React.Component<{}> {
     componentWillReceiveProps(newProps) {
         this.rolle_id = newProps.match.params.rolle_id;
         this.componentDidMount();
-        // To update the view and show the correct note data, rerun database query here
     }
 }
 
+// On this class page the logged in user's details are fetched and listed for edit.
 class MyPage extends React.Component<{}> {
   constructor() {
     super();
@@ -1545,6 +1554,7 @@ class MyPage extends React.Component<{}> {
 }
 let myPage: ?MyPage
 
+// In this class page all the active members are listed. A search button on top replaces the memberlist with the returned searched users. If logged in user is admin the listed members are clickable and leads to editmember class.
 class Members extends React.Component<{}> {
   constructor() {
     super();
@@ -1623,17 +1633,14 @@ class Members extends React.Component<{}> {
       if(localStorage.getItem("adminCheckVariable") == i) {
         choices1[i](user.ID).then(
           (result) => {
-            console.log('TEST');
             this.memberList = result;
             this.forceUpdate();
           }).catch()
 
           this.refs.searchButton.onclick = () => {
             search = this.refs.search.value + "%";
-            console.log(search);
             choices2[i](search).then(
               (result) => {
-                console.log(result);
                 this.memberList = result;
                 this.forceUpdate();
               }
@@ -1650,6 +1657,7 @@ class Members extends React.Component<{}> {
 }
 let memberPage: ?Members
 
+//This class page comes from Members. Only admin users have access here and can edit all user details including username which is not possible on MyPage.
 class EditMember extends React.Component<{}> {
 
     constructor(props) {
@@ -1732,6 +1740,7 @@ class EditMember extends React.Component<{}> {
   }
 }
 
+// This class page shows a button for the user to log out to the signIn class page.
 class SignOut extends React.Component<{}> {
   refs: {
     signOut: HTMLInputElement
@@ -1757,13 +1766,13 @@ class SignOut extends React.Component<{}> {
       localStorage.setItem("adminCheckVariable", 0);
       history.push("/signin");
       this.forceUpdate();
-      console.log("Logget ut");
     };
   }
 }
 
 let signOut: ?SignOut;
 
+// This page class shows the developers.
 class About extends React.Component<{}> {
     render() {
         return <div>
@@ -1775,6 +1784,8 @@ class About extends React.Component<{}> {
     }
 }
 
+
+// The hashrouter is keeping track of the class pages and their paths.
 let root = document.getElementById("root");
 if(root) {
     ReactDOM.render((
