@@ -1,4 +1,4 @@
-// @flow
+// Imports needed files
 import * as mysql from 'mysql';
 
 // Setup MySQL-server connection
@@ -27,7 +27,9 @@ connection.on('error', (error: Error) => {
 }
 connect();
 
+// This class contains all the questinons for the database regarding forgotton passwords
 class ForgottonPasswordService {
+    // Gets the user and his details which is connected to the email provided
     getUserFromEmail(email: string) : Promise<void> {
         return new Promise((resolve, reject) => {
             connection.query("SELECT * FROM Medlemmer WHERE Epost = ?", [email], (error, result) => {
@@ -39,7 +41,8 @@ class ForgottonPasswordService {
             });
         });
     }
-
+    
+    //  Finds out if there is a user with this email
     getUserFromEmailCheck(email: string) : Promise<void> {
         return new Promise((resolve, reject) => {
             connection.query("SELECT * FROM Medlemmer WHERE BINARY Epost = ?", [email], (error, result) => {
@@ -57,11 +60,12 @@ class ForgottonPasswordService {
         });
     }
 
-    // Dette er kode fra en annen javascript fil for å sende mail, den er ikke koblet til databasen
+    // This is code from Email.js and it sends an email
     sendEmail(emailTo, validatingCode, nameto) {
         emailjs.send("default_service","glemtpassord",{to_name: nameto, from_name: "Rød Fugl", to_email: emailTo, message_html: "Her er din validerings kode: " + validatingCode})
     }
-
+    
+    // Changes the password from the email given
     changePassword(email: string, password: string) : Promise<void> {
         return new Promise((resolve, reject) => {
             connection.query("UPDATE Medlemmer SET Passord = ? WHERE Epost = ?", [password, email], (error, result) => {
@@ -76,7 +80,9 @@ class ForgottonPasswordService {
 }
 let forgottonPasswordService = new ForgottonPasswordService;
 
+// This is the class which has all the questions that has with the roles to do
 class RoleService {
+  // Gets the role from role id
   getRole(rolle_id): Promise<void> {
         return new Promise((resolve, reject) => {
             connection.query('SELECT * FROM Roller Where rolle_id = ?', [rolle_id], (error, result) => {
@@ -88,7 +94,8 @@ class RoleService {
             });
         });
     }
-
+    
+    // Changes the roles from the role id
     changeRoles(
         rolle_id: number,
         Rolle: string,
@@ -104,7 +111,8 @@ class RoleService {
             });
         });
     }
-
+    
+    // Gets all the roles in an ascending order
     getRoles(): Promise<void> {
         return new Promise((resolve, reject) => {
             connection.query('SELECT * FROM Roller ORDER BY Rolle ASC', (error, result) => {
@@ -116,7 +124,8 @@ class RoleService {
             });
         });
     }
-
+    
+    // Adds roles
     addRole(Rolle: string, Krav: string) : Promise<void> {
         return new Promise((resolve, reject) => {
             connection.query(
@@ -130,10 +139,7 @@ class RoleService {
         });
     }
 
-//____________________________________________________________________________________________________________________________________________________-
-// HUSK
-//____________________________________________________________________________________________________________________________________________________-
-
+    // Gets all compatible roles from the id given
     getCompatibleRolesById(id) : Promise<void> {
       return new Promise((resolve, reject) => {
         connection.query('SELECT * From Roller JOIN Roller WHERE id=?', [id], (error, result) => {
@@ -149,8 +155,9 @@ class RoleService {
 
 let roleService = new RoleService;
 
-//jobb med CrewService: Joine tabeller?
+// This is the class which has all the crew questions for the database
 class CrewService {
+  // This gets the shift template from the database
   getShiftTemplate() : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query('SELECT DISTINCT Mannskap.Mann_id, Mannskap.Navn, Roller.rolle_id, Roller.Rolle FROM Mannskap INNER JOIN Roller ON Mannskap.Mann_id = Roller.rolle_id;',
@@ -163,7 +170,8 @@ class CrewService {
           });
       });
   }
-
+  
+  // This adds a new shift template
   addShiftTemplate(navn: string) : Promise<void> {
         return new Promise((resolve, reject) => {
             connection.query(
@@ -180,6 +188,7 @@ class CrewService {
 let crewService = new CrewService;
 // Class that performs database queries related to members
 class MemberService {
+  // Adds new members
   addMember(
     username: string,
     name: string,
@@ -206,7 +215,8 @@ class MemberService {
         });
       });
     }
-
+  
+    // Gets shift points in ascending order
     getMembersVaktpoengAsc() : Promise<void> {
         return new Promise((resolve, reject) => {
             connection.query('SELECT * FROM Medlemmer WHERE KontoAktiv=? ORDER BY Vaktpoeng ASC LIMIT 20', [1], (error, result) => {
@@ -218,7 +228,8 @@ class MemberService {
             });
         });
       }
-
+    
+     // Gives shift points to a member by id
     giveMemberVaktPoeng(vaktpoeng, id) : Promise<void> {
       return new Promise((resolve, reject) => {
         connection.query("UPDATE Medlemmer SET Vaktpoeng=? WHERE ID=?", [vaktpoeng, id], (error, result) => {
@@ -230,7 +241,8 @@ class MemberService {
         });
       });
     }
-
+    
+    // Gets members which accounts are active
     getMembers() : Promise<void> {
         return new Promise((resolve, reject) => {
             connection.query('SELECT * FROM Medlemmer WHERE KontoAktiv=? ORDER BY Etternavn ASC', [1], (error, result) => {
@@ -242,7 +254,8 @@ class MemberService {
             });
         });
     }
-
+    
+    // Gets all members than yourself
     getAllOtherMembers(id) : Promise<void> {
       return new Promise((resolve, reject) => {
         connection.query("SELECT * FROM Medlemmer WHERE ID!=? ORDER BY Etternavn ASC", [id], (error, result) => {
@@ -254,7 +267,8 @@ class MemberService {
         });
       });
     }
-
+    
+    // Gets all active members than yourself
     getOtherMembers(id) : Promise<void> {
         return new Promise((resolve, reject) => {
             connection.query('SELECT * FROM Medlemmer WHERE KontoAktiv=? AND ID!=? ORDER BY Etternavn ASC', [1, id], (error, result) => {
@@ -267,7 +281,8 @@ class MemberService {
             });
         });
     }
-
+    
+    // Gets a member from a search
     getMemberBySearch(search: string) : Promise<void> {
       return new Promise ((resolve, reject) => {
         connection.query('SELECT * FROM Medlemmer WHERE (Fornavn LIKE ? OR Mellomnavn LIKE ? OR Etternavn LIKE ? OR Telefon LIKE ? OR Epost LIKE ?) AND KontoAktiv=1', [search, search, search, search, search], (error, result) => {
@@ -280,7 +295,8 @@ class MemberService {
         });
       });
     }
-
+    
+    // Gets a member from search even deaactivated accounts
     getAllMembersBySearch(search: string) : Promise<void> {
       return new Promise ((resolve, reject) => {
         connection.query('SELECT * FROM Medlemmer WHERE (Fornavn LIKE ? OR Mellomnavn LIKE ? OR Etternavn LIKE ? OR Telefon LIKE ? OR Epost LIKE ?)', [search, search, search, search, search], (error, result) => {
@@ -293,7 +309,8 @@ class MemberService {
         });
       });
     }
-
+    
+    // Gets a member from id
     getMember(id) : Promise<void> {
         return new Promise((resolve, reject) => {
             connection.query('SELECT * FROM Medlemmer Where id = ?', [id], (error, result) => {
@@ -305,7 +322,8 @@ class MemberService {
             });
         });
     }
-
+    
+    // Changes a member from id
     changeMembers(
       id: number,
       fornavn: string,
@@ -327,7 +345,8 @@ class MemberService {
             });
         });
     }
-
+    
+    // Change member admin version where you can change if the account if active
     changeMembersAdmin(
       id: number,
       fornavn: string,
@@ -350,7 +369,8 @@ class MemberService {
             });
         });
     }
-
+    
+    // Delete member by id
     deleteMember(id) : Promise<void> {
         return new Promise((resolve, reject) => {
             connection.query("UPDATE Medlemmer SET KontoAktiv = 0 WHERE ID = ?", [id], (error, result) => {
@@ -362,7 +382,8 @@ class MemberService {
             });
         });
     }
-
+    
+    // Gets account details from username or email
     checkAccountDetailsFromUsernameAndEmail(username:string, email:string) : Promise<void> {
          return new Promise((resolve, reject) => {
            connection.query('SELECT * From Medlemmer WHERE BINARY Brukernavn=? OR Epost=?', [username, email], (error, result) => {
@@ -387,8 +408,10 @@ class MemberService {
 
 let memberService = new MemberService();
 
+// This class has all the queries for the users
 class UserService {
-  // Vet ikke hvordan å få en egen melding for at kontoen er deaktivert
+  // This is the query which handles the sign in. If it finds a user which has your password and username it sets the
+  // local storage item to your account details and signs you in
   signIn(username: string, password: string): Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query( "SELECT * FROM Medlemmer WHERE BINARY Brukernavn=? AND BINARY Passord=? AND KontoAktiv=1", [username, password], (error, result) => {
@@ -409,25 +432,25 @@ class UserService {
       });
     });
   }
-
+  
+  // Gets your account details from local storage
   getSignedInUser(): ?User {
     let item = localStorage.getItem('signedInUser'); // Get User-object from browser
     if(!item) return null;
 
     return JSON.parse(item);
   }
-
+  
+// Signs you out by setting the local storage item to blank
   signOut() {
     localStorage.setItem('signedInUser', "");
   }
 }
 let userService = new UserService();
 
-//____________________________________________________________________________________________________________________________________________________-
-// HUSK
-//____________________________________________________________________________________________________________________________________________________-
-
+// Query class which has all the querys with competence to do
 class CompetenceService {
+  // Gets a competence by id
   getCompetenceById(id) : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query('SELECT * FROM MedlemHarKompetanse mk RIGHT JOIN Kompetanse k ON mk.KompetanseID = k.kompetanseID WHERE mk.ID=?', [id, id], (error, result) => {
@@ -440,7 +463,8 @@ class CompetenceService {
       })
     })
   }
-
+  
+  // Gets all competences
   getCompetences() : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query('SELECT * From Kompetanse', (error, result) => {
@@ -453,7 +477,8 @@ class CompetenceService {
       })
     })
   }
-
+  
+  // Adds a competence
   addCompetenceToId(id, compId) : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query('INSERT INTO MedlemHarKompetanse (ID, KompetanseID) values (?, ?)', [id, compId], (error, result) => {
@@ -469,27 +494,9 @@ class CompetenceService {
 }
 let competenceService = new CompetenceService();
 
-class Eventa {
-  //skrev Eventa fordi Event er et reservert ord
-  id: number;
-  eventName: string;
-  zipCode: number;
-  eventStartDate: string;
-  eventEndDate: string;
-  eventDescription: string;
-  startTime: string;
-  endTime: string;
-  meetingDate: string;
-  meetingPoint: string;
-  meetingTime: string;
-  contactPerson: string;
-}
-
-//____________________________________________________________________________________________________________________________________________________-
-// HUSK
-//____________________________________________________________________________________________________________________________________________________-
-
+// The query class which has to external contact person to do
 class ExternalService {
+  // Gets external contacts
   getContacts() : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query('SELECT * From EksternKontakt', (error, result) => {
@@ -502,7 +509,8 @@ class ExternalService {
       })
     })
   }
-
+  
+  // Gets external contact from id
   getContact(id) : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query('SELECT * FROM EksternKontakt where=?', [id], (error, result) => {
@@ -518,7 +526,9 @@ class ExternalService {
 }
 let externalService = new ExternalService();
 
+// Class which has all the queries with the events
 class EventService {
+  // Gets all events in order
   getEvents() : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query('SELECT * FROM Arrangementer ORDER BY OppmoteDato ASC', (error, result) => {
@@ -530,6 +540,7 @@ class EventService {
         });
       });
     }
+   // Gets one event from id
   getEvent(idArrangementer) : Promise<void> {
       return new Promise((resolve, reject) => {
           connection.query('SELECT * FROM Arrangementer Where idArrangementer = ?', [idArrangementer], (error, result) => {
@@ -541,6 +552,7 @@ class EventService {
           });
       });
   }
+  // Change an event from id
 changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDato, SluttDato, StartTid, SluttTid, Oppmotedato, OppmoteSted, OppmoteTid, EksternKontakt) : Promise<void> {
     return new Promise((resolve, reject) => {
         connection.query('UPDATE Arrangementer SET Arrangement_Navn = ?, Beskrivelse = ?, Postnummer = ?, StartDato = ?, SluttDato = ?, StartTid = ?, SluttTid = ?, Oppmotedato = ?, OppmoteSted = ?, OppmoteTid = ?, EksternKontakt = ? WHERE idArrangementer = ?', [Arrangement_Navn, Beskrivelse, Postnummer, StartDato, SluttDato, StartTid, SluttTid, Oppmotedato, OppmoteSted, OppmoteTid, EksternKontakt, idArrangementer], (error, result) => {
@@ -552,6 +564,7 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
         });
     });
 }
+// Adds an event
   addEvent(
       eventName: string,
       zipCode: string,
@@ -583,10 +596,7 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
     });
   }
 
-  //____________________________________________________________________________________________________________________________________________________-
-  // HUSK
-  //____________________________________________________________________________________________________________________________________________________-
-
+  // Checks all the events a member is interested in
   interestEventCheck(eventId: int, memberId: int) : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query('SELECT * FROM ArrangementInteresse WHERE ArrangementID=? AND ID=?', [eventId, memberId], (error, result) => {
@@ -599,7 +609,8 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
       })
     })
   }
-
+  
+  // Adds a new event that a member is interested in
   interestEvent(eventId: int, memberId: int) : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query('INSERT INTO ArrangementInteresse (ArrangementID, ID) values (?, ?)', [eventId, memberId], (error, result) => {
@@ -612,7 +623,8 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
       })
     })
   }
-
+  
+  // Removes an event a member is interested in
   removeInterestEvent(eventId: int, memberId: int) : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query('DELETE FROM ArrangementInteresse WHERE ArrangementID=? AND ID=?', [eventId, memberId], (error, result) => {
@@ -625,7 +637,8 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
       })
     })
   }
-
+  
+  // Gets interested event by event id
   getInterestedInEvent(eventId) : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query('SELECT * FROM ArrangementInteresse ai LEFT JOIN Medlemmer m ON ai.ID=m.ID WHERE ArrangementID=?', [eventId], (error, result) => {
@@ -638,7 +651,8 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
       })
     })
   }
-
+  
+  // Gets a members events from member id
   getMembersEvents(memberId) : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query('SELECT * FROM ArrangHarMedlem am LEFT JOIN Arrangementer a ON am.idArrangementer=a.idArrangementer LEFT JOIN Roller r on am.rolle_id=r.rolle_id WHERE am.ID=? ORDER BY OppmoteDato ASC', [memberId], (error, result) => {
@@ -651,7 +665,8 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
       })
     })
   }
-
+  
+  // Sends email for confirmation about confirmed shift
   sendEmailForConfirmation(
     nameto,
     emailTo,
@@ -681,7 +696,9 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
 }
 let eventService = new EventService();
 
+// Class which has all the queries about rosters
 class RosterService {
+  // Adds a role to the event by id
    addRoleToEvent(eventId, roleId) : Promise<void> {
      return new Promise((resolve, reject) => {
        connection.query('INSERT INTO ArrangHarMedlem (idArrangementer, rolle_id) values (?, ?)', [eventId, roleId], (error, result) => {
@@ -693,7 +710,8 @@ class RosterService {
        })
      })
    }
-
+  
+   // Gets roster from event by event id
   getRosterFromEvent(eventId: int) : Promise<void> {
       return new Promise((resolve, reject) => {
         connection.query('SELECT * FROM ArrangHarMedlem am LEFT JOIN Medlemmer m ON am.ID=m.ID LEFT JOIN Roller r ON am.rolle_id = r.rolle_id WHERE am.idArrangementer=? ORDER BY am.rolle_id DESC', [eventId], (error, result) => {
@@ -707,6 +725,7 @@ class RosterService {
       })
   }
 
+   // Adds a member to event roster with shift id
   addToEventRosterByVaktRolleId(memberId, VaktRolleId, check) : Promise<void> {
     return new Promise((resolve, reject) => {
       connection.query('UPDATE ArrangHarMedlem SET ID=?, Godkjenning=? WHERE VaktRolleId=?', [memberId, check, VaktRolleId], (error, result) => {
@@ -720,6 +739,7 @@ class RosterService {
     })
   }
 
+  // Checks roster for members by event id and member id
  checkRosterForMember(eventId: int, memberId: int) : Promise<void> {
      return new Promise((resolve, reject) => {
        connection.query('SELECT * FROM ArrangHarMedlem WHERE idArrangementer=? AND ID=?', [eventId, memberId], (error, result) => {
@@ -732,7 +752,8 @@ class RosterService {
        })
      })
  }
-
+  
+ // Checks roster for members by only member id 
  checkRosterForMembers(eventId: int) : Promise<void> {
      return new Promise((resolve, reject) => {
        connection.query('SELECT * FROM ArrangHarMedlem WHERE idArrangementer=? AND ID LIKE ?', [eventId, '%'], (error, result) => {
@@ -746,6 +767,7 @@ class RosterService {
      })
   }
 
+  // Checks roster for active members by event id
   checkRosterForInvertedMembers(eventId: int) : Promise<void> {
       return new Promise((resolve, reject) => {
         connection.query('SELECT * FROM Medlemmer m WHERE m.KontoAktiv > 0', [eventId], (error, result) => {
@@ -758,7 +780,8 @@ class RosterService {
         })
       })
    }
-
+  
+   // Gets open roster by event id
   getOpenRoster(eventId: int): Promise<void> {
       return new Promise((resolve, reject) => {
         connection.query('SELECT * FROM ArrangHarMedlem am LEFT JOIN Roller r ON am.rolle_id=r.rolle_id WHERE idArrangementer=? AND ID IS NULL', [eventId], (error, result) => {
@@ -771,7 +794,8 @@ class RosterService {
         })
       })
    }
-
+  
+   // Deletes roster by shift role id
    deleteRosterByVaktRolleId(VaktRolleId: int) : Promise<void> {
        return new Promise((resolve, reject) => {
          connection.query('DELETE FROM ArrangHarMedlem WHERE VaktRolleId = ?', [VaktRolleId], (error, result) => {
@@ -788,5 +812,5 @@ class RosterService {
 }
 let rosterService = new RosterService();
 
-//skrev Eventa fordi Event er et reservert ord
+//Exports all the different classes
 export {userService, Eventa, eventService, memberService, externalService, roleService, competenceService, crewService, rosterService, forgottonPasswordService };
