@@ -114,7 +114,7 @@ class RoleService {
 
     getRoles(): Promise<void> {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM Roller', (error, result) => {
+            connection.query('SELECT * FROM Roller ORDER BY Rolle ASC', (error, result) => {
                 if (error) {
                     reject(error);
                     return;
@@ -227,7 +227,7 @@ class MemberService {
 
     getMembers() : Promise<void> {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM Medlemmer WHERE KontoAktiv=?', [1], (error, result) => {
+            connection.query('SELECT * FROM Medlemmer WHERE KontoAktiv=? ORDER BY Etternavn ASC', [1], (error, result) => {
                 if(error) {
                     reject(error);
                     return;
@@ -239,7 +239,7 @@ class MemberService {
 
     getAllOtherMembers(id) : Promise<void> {
       return new Promise((resolve, reject) => {
-        connection.query("SELECT * FROM Medlemmer WHERE ID!=?", [id], (error, result) => {
+        connection.query("SELECT * FROM Medlemmer WHERE ID!=? ORDER BY Etternavn ASC", [id], (error, result) => {
           if(error) {
             reject(error);
             return;
@@ -251,7 +251,7 @@ class MemberService {
 
     getOtherMembers(id) : Promise<void> {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM Medlemmer WHERE KontoAktiv=? AND ID!=?', [1, id], (error, result) => {
+            connection.query('SELECT * FROM Medlemmer WHERE KontoAktiv=? AND ID!=? ORDER BY Etternavn ASC', [1, id], (error, result) => {
                 if(error) {
                     console.log("Test:"+error);
                     reject(error);
@@ -515,7 +515,7 @@ let externalService = new ExternalService();
 class EventService {
   getEvents() : Promise<void> {
     return new Promise((resolve, reject) => {
-      connection.query('SELECT * FROM Arrangementer', (error, result) => {
+      connection.query('SELECT * FROM Arrangementer ORDER BY OppmoteDato ASC', (error, result) => {
         if(error) {
           reject(error);
           return;
@@ -633,6 +633,19 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
     })
   }
 
+  getMembersEvents(memberId) : Promise<void> {
+    return new Promise((resolve, reject) => {
+      connection.query('SELECT * FROM ArrangHarMedlem am LEFT JOIN Arrangementer a ON am.idArrangementer=a.idArrangementer WHERE am.ID=? ORDER BY OppmoteDato ASC', [memberId], (error, result) => {
+          if(error) {
+              reject(error);
+              return;
+          }
+
+          resolve(result);
+      })
+    })
+  }
+
   sendEmailForConfirmation(
     nameto,
     emailTo,
@@ -688,15 +701,15 @@ class RosterService {
       })
   }
 
-  addToEventRosterByVaktRolleId(memberId, VaktRolleId) : Promise<void> {
+  addToEventRosterByVaktRolleId(memberId, VaktRolleId, check) : Promise<void> {
     return new Promise((resolve, reject) => {
-      connection.query('UPDATE ArrangHarMedlem SET ID=? WHERE VaktRolleId=?', [memberId, VaktRolleId], (error, result) => {
+      connection.query('UPDATE ArrangHarMedlem SET ID=?, Godkjenning=? WHERE VaktRolleId=?', [memberId, check, VaktRolleId], (error, result) => {
         if(error) {
             reject(error);
             return;
         }
         console.log(result);
-        resolve(result[0]);
+        resolve(result);
       })
     })
   }
@@ -770,4 +783,4 @@ class RosterService {
 let rosterService = new RosterService();
 
 //skrev Eventa fordi Event er et reservert ord
-  export {userService, Eventa, eventService, memberService, externalService, roleService, competenceService, crewService, rosterService, forgottonPasswordService };
+export {userService, Eventa, eventService, memberService, externalService, roleService, competenceService, crewService, rosterService, forgottonPasswordService };

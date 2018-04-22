@@ -65,6 +65,7 @@ class Menu extends React.Component<{}> {
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/crew'>Mannskap</NavLink>{' '}</li>
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/roles'>Roller</NavLink>{' '}</li>
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/mypage'>Min Side</NavLink>{' '}</li>
+                          <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/mycompetence'>Min Kompetanse</NavLink>{' '}</li>
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/members'>Medlemmer</NavLink>{' '}</li>
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} to='/signout'>Logg ut</NavLink>{' '}</li>
                         <li className={"aboutli"}><NavLink activeStyle={{color: 'white'}} to='/about'>Om</NavLink>{' '}</li>
@@ -74,9 +75,10 @@ class Menu extends React.Component<{}> {
         }
         history.push("/signIn");
         return (
-          <div>
-          </div>
-        )
+            <div>
+
+            </div>
+        );
     }
 
     componentDidMount() {
@@ -475,6 +477,7 @@ class Home extends React.Component<{}> {
     componentWillUnmount() {
       $("#calendar").fullCalendar("destroy");
     }
+
 }
 
 class AddEvent extends React.Component<{}> {
@@ -560,19 +563,46 @@ class AddEvent extends React.Component<{}> {
 class Event extends React.Component<{}> {
   constructor() {
     super();
-
+    this.myEventList = [];
     this.events = [];
   }
   render() {
+    let myList = [];
+    for(let event of this.myEventList) {
+      console.log(event);
+      let check;
+      let check2;
+      if (event.Godkjenning==1) {
+        check = "Godkjent";
+      } else if (event.Godkjenning==2) {check = "Avslått";
+    } else { check = <button onClick={()=>this.eventAnswer(event.ID, event.VaktRolleId, 1)}>Godkjenn</button>;
+               check2 = <button onClick={()=>this.eventAnswer(event.ID, event.VaktRolleId, 2)}>Avslå</button> }
+        myList.push(<tr key={event.VaktRolleId}> <td>{event.OppmoteDato.toString().substring(0, 10)}</td> <NavLink activeStyle={{color: 'red'}} to={'/editevent/'+event.idArrangementer}> <td>{event.Arrangement_Navn}</td></NavLink> <td>{check}{check2}</td> </tr>)
+    }
+
+
     let listEvents = [];
     for(let eventa of this.events) {
-        listEvents.push(<tr key={eventa.idArrangementer}><td>{eventa.OppmoteDato.toString().substring(0, 10)}</td><NavLink activeStyle={{color: 'red'}} to={'/editevent/'+eventa.idArrangementer}>{eventa.Arrangement_Navn}</NavLink><td>{eventa.Beskrivelse}</td></tr>) //bruker key prop for optimalisering
+        listEvents.push(<tr key={eventa.idArrangementer}><td>{eventa.OppmoteDato.toString().substring(0, 10)}</td><NavLink activeStyle={{color: 'red'}} to={'/editevent/'+eventa.idArrangementer}><td>{eventa.Arrangement_Navn}</td></NavLink><td>{eventa.Beskrivelse}</td></tr>) //bruker key prop for optimalisering
       }
 
     if (localStorage.getItem("adminCheckVariable") == 1) {
       return (
             <div>
-                <h1>Arrangement</h1>
+                <div>
+                <h1>Mine Arrangementer</h1>
+                    <table id = "bigTable">
+                        <tbody>
+                        <tr>
+                            <th>Oppmøtedato</th>
+                            <th>Påmeldte Arrangement</th>
+                            <th>Status</th>
+                        </tr>
+                          {myList}
+                        </tbody>
+                    </table>
+                </div>
+                <h1>Arrangementer</h1>
                     ? Trykk på et arrangementnavn for å se mer informasjon for det arrangementet.
                 <table id = "bigTable">
                     <tbody>
@@ -581,7 +611,7 @@ class Event extends React.Component<{}> {
                         <th>Arrangement</th>
                         <th>Beskrivelse</th>
                     </tr>
-                    {listEvents}
+                      {listEvents}
                     </tbody>
                 </table>
                 <br />
@@ -592,7 +622,23 @@ class Event extends React.Component<{}> {
     } if (localStorage.getItem("adminCheckVariable") == 0) {
       return (
             <div>
-                <h1>Arrangement</h1>
+                 <div>
+                 <h1>Mine Arrangementer</h1>
+                     <table id = "bigTable">
+                         <tbody>
+                         <tr>
+                            <th>Oppmøtedato</th>
+                            <th>Påmeldte Arrangement</th>
+                            <th>Status</th>
+                         </tr>
+                           {myList}
+                         </tbody>
+                     </table>
+                 </div>
+
+
+
+                <h1>Arrangementer</h1>
                     ? Trykk på et arrangementnavn for å se mer informasjon for det arrangementet.
                 <table id = "bigTable">
                     <tbody>
@@ -601,7 +647,7 @@ class Event extends React.Component<{}> {
                         <th>Arrangement</th>
                         <th>Beskrivelse</th>
                     </tr>
-                    {listEvents}
+                      {listEvents}
                     </tbody>
                 </table>
             </div>
@@ -611,6 +657,8 @@ class Event extends React.Component<{}> {
 
 
   componentDidMount() {
+    let member = userService.getSignedInUser();
+      this.getMyEvents(member.ID);
       eventService.getEvents().then((events) => {
           this.events = events;
           this.forceUpdate();
@@ -623,7 +671,25 @@ class Event extends React.Component<{}> {
           console.log("Hoppet til addevent");
       };
     }
+
+
   }
+
+  getMyEvents(ID) {
+    eventService.getMembersEvents(ID).then((res) => {
+      console.log(res);
+      this.myEventList = res;
+      this.forceUpdate();
+    })
+  }
+
+  eventAnswer(myId, vaktRolleId, answer) {
+    rosterService.addToEventRosterByVaktRolleId(myId, vaktRolleId, answer).then((res) => {
+      console.log(res);
+      this.componentDidMount();
+    })
+  }
+
 }
 
 
@@ -672,15 +738,19 @@ class EditEvent extends React.Component {
         for(let roster of this.roster) {
           let button : ?HTMLButtonElement;
           let button2: HTMLButtonElement = <button className="button" onClick={() => {this.removeRole(roster.VaktRolleId)}}>Fjern Rolle</button>;
+          let check;
+          if (roster.Godkjenning==1) {check = "Godkjent"}
+             else if (roster.Godkjenning==2) { check = "Avslått" }
+             else { check = "Venter"}
 
           if (roster.ID != null) {
             button = <button className="button" onClick={() => {this.remove(roster.VaktRolleId)}}>Tøm</button>;
-            rosterList.push(<tr key={roster.VaktRolleId}><td>{roster.Rolle}</td><td>{roster.Fornavn} {roster.Etternavn}</td><td>{roster.Telefon}</td> {button2} {button}</tr>)
+            rosterList.push(<tr key={roster.VaktRolleId}><td>{roster.Rolle}</td><td>{roster.Fornavn} {roster.Etternavn}</td><td>{roster.Telefon}</td> <td>{check}</td> {button2} {button}</tr>)
           }
 
           if (roster.ID == null) {
             button = ""
-            rosterList.push(<tr key={roster.VaktRolleId}><td>{roster.Rolle}</td><td>{roster.Fornavn} {roster.Etternavn}</td><td>{roster.Telefon}</td> {button2} </tr>)
+            rosterList.push(<tr key={roster.VaktRolleId}><td>{roster.Rolle}</td><td>{roster.Fornavn} {roster.Etternavn}</td><td>{roster.Telefon}</td> <td></td> {button2} </tr>)
           }
         }
 
@@ -734,7 +804,7 @@ class EditEvent extends React.Component {
                   <div>
                   <table id="bigTable">
                     <tr>
-                    <th>Vaktliste</th> <th>Person</th> <th>Telefon</th>
+                    <th>Vaktliste</th> <th>Person</th> <th>Telefon</th> <th> Godkjent </th>
                     </tr>
                      <tbody>
                          {rosterList}
@@ -782,6 +852,22 @@ class EditEvent extends React.Component {
               </div>
           );
       } if (localStorage.getItem("adminCheckVariable") == 0) {
+        let rosterList = [];
+        for(let roster of this.roster) {
+          let check;
+          if (roster.Godkjenning==1) {check = "Godkjent"}
+             else if (roster.Godkjenning==2) { check = "Avslått" }
+             else { check = "Venter"}
+
+          if (roster.ID != null) {
+            rosterList.push(<tr key={roster.VaktRolleId}><td>{roster.Rolle}</td><td>{roster.Fornavn} {roster.Mellomnavn} {roster.Etternavn}</td><td>{roster.Telefon}</td> <td>{check}</td></tr>)
+          }
+
+          if (roster.ID == null) {
+            rosterList.push(<tr key={roster.VaktRolleId}><td>{roster.Rolle}</td><td>{roster.Fornavn} {roster.Mellomnavn} {roster.Etternavn}</td><td>{roster.Telefon}</td><td></td> </tr>)
+          }
+        }
+
         return (
           <div>
               <h1>Endre arrangement</h1><br />
@@ -804,6 +890,17 @@ class EditEvent extends React.Component {
               </div>
 
                 {this.interest}
+
+                <table id="bigTable">
+                  <tr>
+                  <th>Vaktliste</th> <th>Person</th> <th>Telefon</th> <th> Godkjent </th>
+                  </tr>
+                   <tbody>
+                       {rosterList}
+                   </tbody>
+                </table>
+
+
             </div>
         )
       }
@@ -840,7 +937,7 @@ class EditEvent extends React.Component {
         }
 
         this.refs.enlistButton.onclick = () => {
-          rosterService.addToEventRosterByVaktRolleId(this.refs.personsInput.value, this.refs.openListInput.value).then(
+          rosterService.addToEventRosterByVaktRolleId(this.refs.personsInput.value, this.refs.openListInput.value, 0).then(
             this.componentDidMount()
           )
           memberService.getMember(this.refs.personsInput.value).then((result) => {
@@ -854,6 +951,7 @@ class EditEvent extends React.Component {
           });
         }
       }
+
       externalService.getContacts().then((res) => {
         this.external = res;
         this.forceUpdate();
@@ -918,7 +1016,7 @@ class EditEvent extends React.Component {
     }
 
     remove(VaktRolleId) {
-      rosterService.addToEventRosterByVaktRolleId(null, VaktRolleId)
+      rosterService.addToEventRosterByVaktRolleId(null, VaktRolleId, null)
       this.componentDidMount();
     }
 
@@ -1046,6 +1144,80 @@ class AddCrew extends React.Component<{}> {
         };
     }
 }
+
+class MyCompetence extends React.Component<{}> {
+  constructor() {
+    super();
+
+    this.competenceList = [];
+    this.newCompetenceList = [];
+  }
+
+  refs: {
+    newRoleinput: HTMLInputElement,
+    addButton: HTMLButtonElement
+
+  }
+
+  render() {
+    let listCompetence = [];
+    for(let comp of this.competenceList) {
+        listCompetence.push(<tr key={comp.KompetanseID}><td>{comp.KompetanseNavn}</td></tr>)
+    }
+
+    let listNewCompetence = [];
+    for(let newComp of this.newCompetenceList) {
+      listNewCompetence.push( <option key={newComp.KompetanseID} value={newComp.KompetanseID}> {newComp.KompetanseNavn} </option> );
+    }
+
+
+    return<div>
+            <h1>Min Kompetanse</h1>
+            <table id="bigTable">
+              <tbody>
+                <tr>
+                  <th>Kompetanse</th>
+                </tr>
+                {listCompetence}
+              </tbody>
+            </table>
+
+            <input className="inputSmall" list="newList" ref="newRoleinput" />
+              <datalist id="newList">
+                {listNewCompetence}
+              </datalist>
+            <input className="button" type="button" ref="addButton" value="Ny Kompetanse"/>
+
+
+          </div>
+
+
+  }
+
+  componentDidMount() {
+    let user = userService.getSignedInUser();
+
+    competenceService.getCompetenceById(user.ID).then(
+      (result) => {
+        this.competenceList = result;
+    }).catch()
+
+    competenceService.getCompetences().then(
+      (result) => {
+        console.log(result);
+          this.newCompetenceList = result;
+          this.forceUpdate();
+      }
+    )
+
+    this.refs.addButton.onclick = () => {
+      competenceService.addCompetenceToId(user.ID, this.refs.newRoleinput.value).then();
+      this.componentDidMount();
+    }
+  }
+
+}
+
 
 class Roles extends React.Component<{}> {
     constructor() {
@@ -1204,6 +1376,12 @@ class EditRole extends React.Component<{}> {
 }
 
 class MyPage extends React.Component<{}> {
+  constructor() {
+    super();
+
+    this.myEventList = [];
+  }
+
     Refs: {
         userID:HTMLOutputElement,
         changeUsername:HTMLOutputElement,
@@ -1220,6 +1398,20 @@ class MyPage extends React.Component<{}> {
     }
 
     render() {
+
+      let myList = [];
+      for(let event of this.myEventList) {
+        console.log(event);
+        let check;
+        let check2;
+        if (event.Godkjenning==1) {
+          check = "Godkjent";
+        } else if (event.Godkjenning==2) {check = "Avslått";
+      } else { check = <button onClick={()=>this.eventAnswer(event.ID, event.VaktRolleId, 1)}>Godkjenn</button>;
+                 check2 = <button onClick={()=>this.eventAnswer(event.ID, event.VaktRolleId, 2)}>Avslå</button> }
+          myList.push(<tr key={event.VaktRolleId}> <NavLink activeStyle={{color: 'red'}} to={'/editevent/'+event.idArrangementer}> <td>{event.Arrangement_Navn}</td></NavLink> <td>{check}{check2}</td> </tr>)
+      }
+
         return (
             <div>
                 <h1>Min side</h1>
@@ -1238,12 +1430,24 @@ class MyPage extends React.Component<{}> {
                     </div>
                         <input className="button1" type="submit" ref="changeButton" value="Endre"/>
                 </form>
+                <div>
+                    <table id = "bigTable">
+                        <tbody>
+                        <tr>
+                            <th>Arrangement</th>
+                            <th>Status</th>
+                        </tr>
+                          {myList}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         )
     }
 
     componentDidMount() {
         let member = userService.getSignedInUser();
+        this.getMyEvents(member.ID);
         member.Fødselsdato = new Date(member.Fødselsdato);
 
         this.refs.userID.value = member.ID;
@@ -1261,12 +1465,30 @@ class MyPage extends React.Component<{}> {
             memberService.changeMembers(member.ID, this.refs.changeFirstname.value, this.refs.changeMiddlename.value, this.refs.changeSurname.value, this.refs.changeTelephone.value, this.refs.changeAddress.value, this.refs.changeZipcode.value, this.refs.changeDateOfBirth.valueAsDate, this.refs.changeEmail.value).then(
                 memberService.getMember(member.ID).then((result)=> {
                     localStorage.setItem('signedInUser', JSON.stringify(result))
+                    alert('Endret!');
                 }),
             ).catch((error) => {
                 if(errorMessage) errorMessage.set('Error getting member: ' + error.message);
             });
         }
+
     }
+
+    getMyEvents(ID) {
+      eventService.getMembersEvents(ID).then((res) => {
+        console.log(res);
+        this.myEventList = res;
+        this.forceUpdate();
+      })
+    }
+
+    eventAnswer(myId, vaktRolleId, answer) {
+      rosterService.addToEventRosterByVaktRolleId(myId, vaktRolleId, answer).then((res) => {
+        console.log(res);
+        this.componentDidMount();
+      })
+    }
+
     componentWillUnmount() {
         myPage = null;
     }
@@ -1526,6 +1748,7 @@ if(root) {
                     <Route exact path='/addrole' component={AddRole} />
                     <Route exact path='/editrole/:rolle_id' component={EditRole} />
                     <Route exact path='/mypage' component={MyPage} />
+                    <Route exact path='/mycompetence' component={MyCompetence} />
                     <Route exact path='/members' component={Members} />
                     <Route exact path='/editmember/:ID' component={EditMember} />
                     <Route exact path='/about' component={About} />
