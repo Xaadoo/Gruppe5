@@ -114,7 +114,7 @@ class RoleService {
 
     getRoles(): Promise<void> {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM Roller', (error, result) => {
+            connection.query('SELECT * FROM Roller ORDER BY Rolle ASC', (error, result) => {
                 if (error) {
                     reject(error);
                     return;
@@ -160,7 +160,7 @@ let roleService = new RoleService;
 class CrewService {
     getShiftTemplate() : Promise<void> {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT DISTINCT Mannskap.Mann_id, Mannskap.Navn, Roller.rolle_id, Roller.Rolle FROM Mannskap INNER JOIN Roller ON Mannskap.Mann_id = Roller.rolle_id;',
+            connection.query('SELECT DISTINCT Mannskap.Mann_id, Mannskap.Navn, Roller.rolle_id, Roller.Rolle FROM Mannskap INNER JOIN Roller ON Mannskap.Mann_id = Roller.rolle_id ORDER BY Rolle ASC;',
                 (error, result) => {
                     if(error) {
                         reject(error);
@@ -227,7 +227,7 @@ class MemberService {
 
     getMembers() : Promise<void> {
         return new Promise((resolve, reject) => {
-            connection.query('SELECT * FROM Medlemmer WHERE KontoAktiv=?', [1], (error, result) => {
+            connection.query('SELECT * FROM Medlemmer WHERE KontoAktiv=? ORDER BY Brukernavn ASC', [1], (error, result) => {
                 if(error) {
                     reject(error);
                     return;
@@ -239,7 +239,7 @@ class MemberService {
 
     getAllOtherMembers(id) : Promise<void> {
         return new Promise((resolve, reject) => {
-            connection.query("SELECT * FROM Medlemmer WHERE ID!=?", [id], (error, result) => {
+            connection.query("SELECT * FROM Medlemmer WHERE ID!=? ORDER BY Brukernavn ASC", [id], (error, result) => {
                 if(error) {
                     reject(error);
                     return;
