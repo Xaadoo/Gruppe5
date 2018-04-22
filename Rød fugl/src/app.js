@@ -1,4 +1,4 @@
-// @flow
+// Here we import all the files and libraries we need from files inside the Rød Fugl folder. We also declare some variables we use in the code.
 import * as React from 'react'; //imports the React-Library
 import ReactDOM from 'react-dom'; //imports ReactDOM
 import { Link, NavLink, HashRouter, Switch, Route } from 'react-router-dom'; //imports Link, Navlink, Hashrouter, Switch, Route form "react-router-dom"
@@ -8,21 +8,25 @@ import { userService, eventService, memberService, externalService, roleService,
 import $ from 'jquery'; //imports jquery
 import 'fullcalendar'; //imports fullcalendar
 
-//skrev Eventa fordi Event er et reservert ord
-
+// This class represents the error message you get when something goes wrong. It always shows up at the top of the page.
 class ErrorMessage extends React.Component<{}> {
+    
+    // Refs used in the class
     refs: {
         closeButton: HTMLButtonElement
     };
-
+    
+    // The message is stored in this variable
     message = '';
-
+    
+    // This method runs when you first enter the class and decideds what we see on the page
     render() {
         // Only show when this.message is not empty
         let displayValue;
         if(this.message=='') displayValue = 'none';
         else displayValue = 'inline';
-
+        
+        // Here we see what is all the HTML items that are on the application page
         return (
             <div style={{display: displayValue}}>
                 <b><font color='red'>{this.message}</font></b>
@@ -30,7 +34,8 @@ class ErrorMessage extends React.Component<{}> {
             </div>
         );
     }
-
+    
+    // This method runs after the rendering and contains all functions on for example buttons
     componentDidMount() {
         errorMessage = this;
         this.refs.closeButton.onclick = () => {
@@ -38,11 +43,13 @@ class ErrorMessage extends React.Component<{}> {
             this.forceUpdate();
         };
     }
-
+    
+    // This method runs before the component will unmount
     componentWillUnmount() {
         errorMessage = null;
     }
-
+    
+    // This method is a way to set the error message to a custom message
     set(post: string) {
         this.message = post;
         this.forceUpdate();
@@ -60,12 +67,14 @@ class Menu extends React.Component<{}> {
                 <div className ="navigate">
                     <ul className={"navul"}>
                         <img className= "imgli" src="rodfugl.png" />
+                        
+                        // Here you have all the different elements to click on the navbar
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/'>Hjem</NavLink>{' '}</li>
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/event'>Arrangement</NavLink>{' '}</li>
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/crew'>Mannskap</NavLink>{' '}</li>
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/roles'>Roller</NavLink>{' '}</li>
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/mypage'>Min Side</NavLink>{' '}</li>
-                          <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/mycompetence'>Min Kompetanse</NavLink>{' '}</li>
+                        <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/mycompetence'>Min Kompetanse</NavLink>{' '}</li>
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/members'>Medlemmer</NavLink>{' '}</li>
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} to='/signout'>Logg ut</NavLink>{' '}</li>
                         <li className={"aboutli"}><NavLink activeStyle={{color: 'white'}} to='/about'>Om</NavLink>{' '}</li>
@@ -75,11 +84,12 @@ class Menu extends React.Component<{}> {
         }
         return (
             <div>
-
             </div>
         );
     }
-
+    
+    // If there is a user that is signed inn then it will be directed to the home page
+    // If not then it will be directed to the sign in page
     componentDidMount() {
       let signedInUser = userService.getSignedInUser();
       if (signedInUser) {
@@ -97,6 +107,7 @@ class Menu extends React.Component<{}> {
 
 let menu: ?Menu;
 
+// This is the page for signing in
 class SignIn extends React.Component<{}> {
   refs: {
     signInUsername: HTMLInputElement,
@@ -713,7 +724,7 @@ class Event extends React.Component<{}> {
 
 }
 
-// Recieves an event ID and fetches the event details and role list to show them. If user is admin he can edit them. 
+
 class EditEvent extends React.Component {
     constructor(props) {
         super(props);
@@ -742,7 +753,7 @@ class EditEvent extends React.Component {
         this.roster = [];
         this.eventInterested = [];
     }
-// Checking if user is an admin, if so the event and role list details will be editable and.
+
     render() {
       let listContacts = [];
       for(let contact of this.external) {
