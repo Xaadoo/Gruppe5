@@ -72,11 +72,10 @@ class Menu extends React.Component<{}> {
                 </div>
             );
         }
-        // <NavLink activeStyle={{color: 'red'}} to='/signin'>Logg inn</NavLink>{' '}
-        // <NavLink activeStyle={{color: 'red'}} to='/newmember'>Ny Bruker</NavLink>{' '}
-        // <NavLink activeStyle={{color: "red"}} to="/forgottonpassword">Glemt passord</NavLink>{" "}
+      
         return (
             <div>
+            <NavLink activeStyle={{color: 'red'}} to='/signin'>Logg inn</NavLink>{' '}
             </div>
         );
     }
@@ -185,7 +184,8 @@ class NewMember extends React.Component<{}> {
       adress:HTMLInputElement,
       phone:HTMLInputElement,
       addMemberButton:HTMLButtonElement,
-      submitMember:HTMLInputElement
+      submitMember:HTMLInputElement,
+      goBack:HTMLButtonElement
   }
 
   render() {
@@ -226,6 +226,9 @@ class NewMember extends React.Component<{}> {
 }
   componentDidMount() {
     newmember = this;
+    this.refs.goBack.onclick = () => {
+      history.push("/signIn");
+    }
     this.refs.submitMember.onsubmit = () => {
 
       memberService.checkAccountDetailsFromUsernameAndEmail(this.refs.username.value, this.refs.email.value).then((result) => {
@@ -269,7 +272,8 @@ let submitMember;
 class ForgottonPassword extends React.Component<{}> {
     refs: {
         emailAddress: HTMLInputElement,
-        recoverPasswordButton: HTMLButtonElement
+        recoverPasswordButton: HTMLButtonElement,
+        backButton: HTMLButtonElement
     }
 
     render() {
@@ -288,6 +292,7 @@ class ForgottonPassword extends React.Component<{}> {
                         <div className="wrap-input100">Epost: <input className="inputE" type="text" ref="emailAddress" /></div>
                         <div className="back">
                             <button className="button1" ref="recoverPasswordButton"> Gjennopprett passord </button>
+                            <button className="backB" ref="backButton"> Tilbake </button>
                         </div>
                     </div>
                 </div>
@@ -296,6 +301,10 @@ class ForgottonPassword extends React.Component<{}> {
 }
 
     componentDidMount() {
+        this.refs.backButton.onclick = () => {
+          history.push("/signIn");
+        }
+
         this.refs.recoverPasswordButton.onclick = () => {
             forgottonPasswordService.getUserFromEmail(this.refs.emailAddress.value).then((result) => {
                 accountNameForForgottonPassword = result.Fornavn;
@@ -319,7 +328,8 @@ class ForgottonPassword extends React.Component<{}> {
 class ForgottonPasswordValidation extends React.Component<{}> {
     refs: {
         validatingNumberInput: HTMLInputElement,
-        validatingButton: HTMLButtonElement
+        validatingButton: HTMLButtonElement,
+        backButton: HTMLButtonElement
     }
 
     render() {
@@ -333,6 +343,7 @@ class ForgottonPasswordValidation extends React.Component<{}> {
                             <div className="wrap-input100">Kode: <input className="input" type="text" ref="validatingNumberInput" />
                             <div className={"back"}>
                                 <button className="button1" ref="validatingButton"> Valider koden </button>
+                                <button className="backB" ref="backButton"> Tilbake </button>
                             </div>
                         </div>
                     </div>
@@ -342,6 +353,10 @@ class ForgottonPasswordValidation extends React.Component<{}> {
 }
 
     componentDidMount() {
+        this.refs.backButton.onclick = () => {
+          history.push("/signIn");
+        }
+
         console.log(validationNumberForForgottonPassword);
         this.refs.validatingButton.onclick = () => {
             if(this.refs.validatingNumberInput.value == validationNumberForForgottonPassword) {
@@ -357,7 +372,8 @@ class ForgottonPasswordChange extends React.Component<{}> {
     refs: {
         passwordChangeInput: HTMLInputElement,
         passwordConfirmChangeInput: HTMLInputElement,
-        changePasswordButton: HTMLButtonElement
+        changePasswordButton: HTMLButtonElement,
+        backButton: HTMLButtonElement
     }
 
     render() {
@@ -376,6 +392,7 @@ class ForgottonPasswordChange extends React.Component<{}> {
                             </div>
                             <div className={"back"}>
                                 <button className="button1" ref="changePasswordButton"> Forandre passord </button>
+                                <button className="backB" ref="backButton"> Tilbake </button>
                             </div>
                     </div>
                 </div>
@@ -384,6 +401,10 @@ class ForgottonPasswordChange extends React.Component<{}> {
 }
 
     componentDidMount() {
+        this.refs.backButton.onclick = () => {
+          history.push("/signIn");
+        }
+
         this.refs.changePasswordButton.onclick = () => {
             if (this.refs.passwordChangeInput.value == this.refs.passwordConfirmChangeInput.value) {
                 forgottonPasswordService.changePassword(emailForForgottonPassword, this.refs.passwordChangeInput.value).then(() => {
