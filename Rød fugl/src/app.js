@@ -713,7 +713,7 @@ class Event extends React.Component<{}> {
 
 }
 
-
+// Recieves an event ID and fetches the event details and role list to show them. If user is admin he can edit them. 
 class EditEvent extends React.Component {
     constructor(props) {
         super(props);
@@ -742,7 +742,7 @@ class EditEvent extends React.Component {
         this.roster = [];
         this.eventInterested = [];
     }
-
+// Checking if user is an admin, if so the event and role list details will be editable and.
     render() {
       let listContacts = [];
       for(let contact of this.external) {
