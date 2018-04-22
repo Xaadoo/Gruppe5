@@ -633,6 +633,32 @@ changeEvents(idArrangementer, Arrangement_Navn, Beskrivelse, Postnummer, StartDa
     })
   }
 
+  sendEmailForConfirmation(
+    nameto,
+    emailTo,
+    arrangementNavn,
+    arrangementBeskrivelse,
+    arrangementPostnummer,
+    startDato,
+    sluttDato,
+    startTid,
+    sluttTid,
+    oppMoteDato,
+    oppMoteTidspunkt,
+    oppMoteSted,
+    kontaktPerson)
+
+  {
+    emailjs.send("default_service","p_melding_til_vakt",{
+      to_name: nameto,
+      from_name: "Rød Fugl",
+      to_email: emailTo,
+      message_html1: "Du har blitt påmeldt til vakt på " + arrangementNavn + "!",
+      message_html2: "Her er all informasjonen du trenger om arrangement! Gå inn på din side i Rød Fugl for å bekrefte vakten!",
+      message_html3: "Beskrivelse: " + arrangementBeskrivelse + ". Postnummer: " + arrangementPostnummer + ". Startdato: " + startDato + ". SluttDato: " + sluttDato + ". Starttidspunkt: " + startTid + ". Slutttidspunkt: " + sluttTid + ". Oppmøtedato: " + oppMoteDato + ". Oppmøtetidspunkt: " + oppMoteTidspunkt + ". Oppmøtested: " + oppMoteSted + ". Kontaktperson: " + kontaktPerson + "."
+    })
+  }
+
 }
 let eventService = new EventService();
 

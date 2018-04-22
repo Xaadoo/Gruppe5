@@ -72,12 +72,11 @@ class Menu extends React.Component<{}> {
                 </div>
             );
         }
-      
+        history.push("/signIn");
         return (
-            <div>
-            <NavLink activeStyle={{color: 'red'}} to='/signin'>Logg inn</NavLink>{' '}
-            </div>
-        );
+          <div>
+          </div>
+        )
     }
 
     componentDidMount() {
@@ -423,8 +422,11 @@ let eventsForCalendarInHomeClass = [];
 class Home extends React.Component<{}> {
 
     componentDidMount() {
-      this.getEvents();
-      this.createCalendar();
+      let signedInUser = userService.getSignedInUser();
+      if(signedInUser) {
+        this.getEvents();
+        this.createCalendar();
+      }
     }
 
     createCalendar() {
@@ -468,6 +470,10 @@ class Home extends React.Component<{}> {
 
     render() {
       return <div id='calendar'></div>;
+    }
+
+    componentWillUnmount() {
+      $("#calendar").fullCalendar("destroy");
     }
 }
 
@@ -837,6 +843,15 @@ class EditEvent extends React.Component {
           rosterService.addToEventRosterByVaktRolleId(this.refs.personsInput.value, this.refs.openListInput.value).then(
             this.componentDidMount()
           )
+          memberService.getMember(this.refs.personsInput.value).then((result) => {
+            eventService.getEvent(this.idArrangementer).then((events) => {
+              eventService.sendEmailForConfirmation(result.Fornavn, result.Epost, events.Arrangement_Navn, events.Beskrivelse, events.Postnummer, events.StartDato.toISOString().slice(0,10), events.SluttDato.toISOString().slice(0,10), events.StartTid, events.SluttTid, events.OppmoteDato.toISOString().slice(0,10), events.OppmoteSted, events.OppmoteTid, events.EksternKontakt)
+            }).catch((error) => {
+              if(errorMessage) errorMessage.set("Could Not get events: " + error.message);
+            });
+          }).catch((error) => {
+            if(errorMessage) errorMessage.set("Could not get member: " + error.message);
+          });
         }
       }
       externalService.getContacts().then((res) => {
