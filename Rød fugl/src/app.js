@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom'; //imports ReactDOM
 import { Link, NavLink, HashRouter, Switch, Route } from 'react-router-dom'; //imports Link, Navlink, Hashrouter, Switch, Route form "react-router-dom"
 import createHashHistory from 'history/createHashHistory'; //imports createHashHistory
 const history = createHashHistory(); //constant history
-import { userService, eventService, memberService, externalService, roleService, crewService, rosterService, competenceService, forgottonPasswordService } from './innloggingService'; //importerer de
+import { userService, eventService, memberService, externalService, roleService, crewService, rosterService, competenceService, forgottonPasswordService } from './Services'; //importerer de
 import $ from 'jquery'; //imports jquery
 import 'fullcalendar'; //imports fullcalendar
 
@@ -811,8 +811,11 @@ class EditEvent extends React.Component {
       for(let inter of this.eventInterested) {
           interested.push(<tr key={inter.ID}><td>{inter.Fornavn} {inter.Mellomnavn} {inter.Etternavn}</td> <td> {inter.Telefon} </td></tr>)
       }
-// Checking if user is admin.
+//                          
+// This will render if user is admin.
       if (localStorage.getItem("adminCheckVariable") == 1) {
+
+// Making a list of the roster both roles with members and empty roles 
         let rosterList = [];
         for(let roster of this.roster) {
           let button : ?HTMLButtonElement;
@@ -821,34 +824,37 @@ class EditEvent extends React.Component {
           if (roster.Godkjenning==1) {check = "Godkjent"}
              else if (roster.Godkjenning==2) { check = "Avslått" }
              else { check = "Venter"}
-
+// If the role has a member this is made. Buttons for empty and delete role.
           if (roster.ID != null) {
             button = <button className="button" onClick={() => {this.remove(roster.VaktRolleId), this.shiftPoints(roster.ID, roster.Godkjenning)}}>Tøm</button>;
             rosterList.push(<tr key={roster.VaktRolleId}><td>{roster.Rolle}</td><td>{roster.Fornavn} {roster.Etternavn}</td><td>{roster.Telefon}</td> <td>{check}</td> {button2} {button}</tr>)
           }
-
+// If role is empty this is made.
           if (roster.ID == null) {
             button = ""
             rosterList.push(<tr key={roster.VaktRolleId}><td>{roster.Rolle}</td><td>{roster.Fornavn} {roster.Etternavn}</td><td>{roster.Telefon}</td> <td></td> {button2} </tr>)
           }
         }
-
+                           
+// Making a list of the 20 members with the least points
         let pointList = [];
         for(let roster of this.points) {
             pointList.push(<tr key={roster.ID}><td>{roster.Fornavn} {roster.Mellomnavn} {roster.Etternavn}</td><td>{roster.Telefon}</td> <td>{roster.Vaktpoeng}</td></tr>)
         }
 
+// Making roles option list.
         let listRoles = [<option>Velg Ny Rolle</option>];
         for(let r of this.roles) {
             listRoles.push( <option key={r.rolle_id} value={r.rolle_id}> {r.Rolle} </option> );
           }
 
-
+// Making open roles option list.
           let openRosterList = [<option>Velg Åpen Rolle</option>];
           for(let r of this.openRoster) {
               openRosterList.push( <option key={r.VaktRolleId} value={r.VaktRolleId}> {r.Rolle} </option> );
             }
-
+                         
+// Making person list option list.
           let listPersons = [];
           for(let p of this.personsOpen) {
               listPersons.push( <option key={p.ID} value={p.ID}> {p.Fornavn} {p.Mellomnavn} {p.Etternavn} </option> );
@@ -930,8 +936,12 @@ class EditEvent extends React.Component {
 
               </div>
           );
-// checking for normal user.
+              
+//
+// This will render for normal user.
       } if (localStorage.getItem("adminCheckVariable") == 0) {
+                                                              
+// Making event list for logged in users registered events                                                             
         let rosterList = [];
         for(let roster of this.roster) {
           let check;
@@ -942,7 +952,7 @@ class EditEvent extends React.Component {
           if (roster.ID != null) {
             rosterList.push(<tr key={roster.VaktRolleId}><td>{roster.Rolle}</td><td>{roster.Fornavn} {roster.Mellomnavn} {roster.Etternavn}</td><td>{roster.Telefon}</td> <td>{check}</td></tr>)
           }
-
+                            
           if (roster.ID == null) {
             rosterList.push(<tr key={roster.VaktRolleId}><td>{roster.Rolle}</td><td>{roster.Fornavn} {roster.Mellomnavn} {roster.Etternavn}</td><td>{roster.Telefon}</td><td></td> </tr>)
           }
