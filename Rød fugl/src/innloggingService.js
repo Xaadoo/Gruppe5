@@ -27,13 +27,6 @@ connection.on('error', (error: Error) => {
 }
 connect();
 
-class User {
-  id: number;
-  username: string;
-  firstName: string;
-  password: string;
-}
-
 class ForgottonPasswordService {
     getUserFromEmail(email: string) : Promise<void> {
         return new Promise((resolve, reject) => {
@@ -196,13 +189,14 @@ class MemberService {
     passord: string,
     birthdate: Date,
     phone: string,
-    adress: string)
+    adress: string,
+    zipCode: string)
     : Promise<void> {
       return new Promise((resolve, reject) => {
         connection.query(
-          'INSERT INTO Medlemmer (Brukernavn, Passord, Fornavn, Mellomnavn, Etternavn, Telefon, Gateadresse, Fødselsdato, Epost) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?)', [username, passord, name, middlename, surname, phone, adress, birthdate, email], (error, result) => {
+          'INSERT INTO Medlemmer (Brukernavn, Passord, Fornavn, Mellomnavn, Etternavn, Telefon, Gateadresse, Postnummer, Fødselsdato, Epost) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [username, passord, name, middlename, surname, phone, adress, zipCode, birthdate, email], (error, result) => {
 
-          console.log("Sendt " + username + name + middlename + surname + email + passord + birthdate + adress + phone);
+          console.log("Sendt " + username + name + middlename + surname + email + passord + zipCode +  birthdate + adress + phone);
 
           if(error) {console.log(error)
           reject(error)}

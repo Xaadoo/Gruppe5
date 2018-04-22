@@ -73,7 +73,6 @@ class Menu extends React.Component<{}> {
                 </div>
             );
         }
-        history.push("/signIn");
         return (
             <div>
 
@@ -82,6 +81,12 @@ class Menu extends React.Component<{}> {
     }
 
     componentDidMount() {
+      let signedInUser = userService.getSignedInUser();
+      if (signedInUser) {
+        history.push("/")
+      } else {
+      history.push("/signIn")
+    }
         menu = this;
     }
 
@@ -183,6 +188,7 @@ class NewMember extends React.Component<{}> {
       passordRe:HTMLInputElement,
       birthdate:HTMLInputElement,
       adress:HTMLInputElement,
+      zipCode:HTMLInputElement,
       phone:HTMLInputElement,
       addMemberButton:HTMLButtonElement,
       submitMember:HTMLInputElement,
@@ -211,6 +217,7 @@ class NewMember extends React.Component<{}> {
 
                             <div className="wrap-input100">Fødselsdato:  <input className="input" type="date" ref="birthdate" required/></div>
                             <div className="wrap-input100">Adresse:  <input className="input" type="text" ref="adress" placeholder="Oslogata 34a" required/></div>
+                            <div className="wrap-input100">Postnummer:  <input className="input" type="text" ref="zipCode" placeholder="7100" required/></div>
                             <div className="wrap-input100">Mobilnummer:  <input className="input" type="text" ref="phone" placeholder="11225588" required/></div>
 
                             <input className="button1" type="submit" ref="addMemberButton" value="Opprett Bruker"/>
@@ -235,13 +242,13 @@ class NewMember extends React.Component<{}> {
       memberService.checkAccountDetailsFromUsernameAndEmail(this.refs.username.value, this.refs.email.value).then((result) => {
         console.log("Account: " + result);
         if(result.Brukernavn==this.refs.username.value) {
-          errorMessage.set("Brukernavn opptatt.");
+          alert("Brukernavn opptatt.");
         } else if (result.Epost==this.refs.email.value) {
-          errorMessage.set("Epost opptatt.");
+          alert("Epost opptatt.");
         } else if (this.refs.passord.value.length<10) {
-          errorMessage.set("Passord må være 10 eller flere karakterer langt.");
+          alert("Passord må være 10 eller flere karakterer langt.");
         } else if (this.refs.passord.value!=this.refs.passordRe.value) {
-          errorMessage.set("Passord matcher ikke.");
+          alert("Passord matcher ikke.");
         } else if (result==false) {
           memberService.addMember(
                                 this.refs.username.value,
@@ -252,7 +259,8 @@ class NewMember extends React.Component<{}> {
                                 this.refs.passord.value,
                                 this.refs.birthdate.value,
                                 this.refs.phone.value,
-                                this.refs.adress.value).then(console.log("THEN"), errorMessage.set("Bruker opprettet!")).catch((error: Error) => {
+                                this.refs.adress.value,
+                                this.refs.zipCode.value ).then(history.push("/signIn"), errorMessage.set("Bruker opprettet! Admin må godkjenne bruker før du kan logge inn.")).catch((error: Error) => {
               if(errorMessage) errorMessage.set("Error making new profile.");
             });
         }
@@ -750,14 +758,14 @@ class EditEvent extends React.Component {
         let rosterList = [];
         for(let roster of this.roster) {
           let button : ?HTMLButtonElement;
-          let button2: HTMLButtonElement = <button className="button" onClick={() => {this.removeRole(roster.VaktRolleId)}}>Fjern Rolle</button>;
+          let button2: HTMLButtonElement = <button className="button" onClick={() => {this.removeRole(roster.VaktRolleId), this.shiftPoints(roster.ID, roster.Godkjenning)}}>Fjern Rolle</button>;
           let check;
           if (roster.Godkjenning==1) {check = "Godkjent"}
              else if (roster.Godkjenning==2) { check = "Avslått" }
              else { check = "Venter"}
 
           if (roster.ID != null) {
-            button = <button className="button" onClick={() => {this.remove(roster.VaktRolleId), this.shiftPoints(roster.Godkjenning, roster.ID)}}>Tøm</button>;
+            button = <button className="button" onClick={() => {this.remove(roster.VaktRolleId), this.shiftPoints(roster.ID, roster.Godkjenning)}}>Tøm</button>;
             rosterList.push(<tr key={roster.VaktRolleId}><td>{roster.Rolle}</td><td>{roster.Fornavn} {roster.Etternavn}</td><td>{roster.Telefon}</td> <td>{check}</td> {button2} {button}</tr>)
           }
 
