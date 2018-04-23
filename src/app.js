@@ -1,28 +1,32 @@
-// @flow
+// Here we import all the files and libraries we need from files inside the Rød Fugl folder. We also declare some variables we use in the code.
 import * as React from 'react'; //imports the React-Library
 import ReactDOM from 'react-dom'; //imports ReactDOM
 import { Link, NavLink, HashRouter, Switch, Route } from 'react-router-dom'; //imports Link, Navlink, Hashrouter, Switch, Route form "react-router-dom"
 import createHashHistory from 'history/createHashHistory'; //imports createHashHistory
 const history = createHashHistory(); //constant history
-import { userService, eventService, memberService, externalService, roleService, crewService, rosterService, competenceService, forgottonPasswordService } from './innloggingService'; //importerer de
+import { userService, eventService, memberService, externalService, roleService, crewService, rosterService, competenceService, forgottonPasswordService } from './Services'; //importerer de
 import $ from 'jquery'; //imports jquery
 import 'fullcalendar'; //imports fullcalendar
 
-//skrev Eventa fordi Event er et reservert ord
-
+// This class represents the error message you get when something goes wrong. It always shows up at the top of the page.
 class ErrorMessage extends React.Component<{}> {
+    
+    // Refs used in the class
     refs: {
         closeButton: HTMLButtonElement
     };
-
+    
+    // The message is stored in this variable
     message = '';
-
+    
+    // This method runs when you first enter the class and decideds what we see on the page
     render() {
         // Only show when this.message is not empty
         let displayValue;
         if(this.message=='') displayValue = 'none';
         else displayValue = 'inline';
-
+        
+        // Here we see what is all the HTML items that are on the application page
         return (
             <div style={{display: displayValue}}>
                 <b><font color='red'>{this.message}</font></b>
@@ -30,7 +34,8 @@ class ErrorMessage extends React.Component<{}> {
             </div>
         );
     }
-
+    
+    // This method runs after the rendering and contains all functions on for example buttons
     componentDidMount() {
         errorMessage = this;
         this.refs.closeButton.onclick = () => {
@@ -38,11 +43,13 @@ class ErrorMessage extends React.Component<{}> {
             this.forceUpdate();
         };
     }
-
+    
+    // This method runs before the component will unmount
     componentWillUnmount() {
         errorMessage = null;
     }
-
+    
+    // This method is a way to set the error message to a custom message
     set(post: string) {
         this.message = post;
         this.forceUpdate();
@@ -60,12 +67,14 @@ class Menu extends React.Component<{}> {
                 <div className ="navigate">
                     <ul className={"navul"}>
                         <img className= "imgli" src="rodfugl.png" />
+                        
+                        // Here you have all the different elements to click on the navbar
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/'>Hjem</NavLink>{' '}</li>
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/event'>Arrangement</NavLink>{' '}</li>
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/crew'>Mannskap</NavLink>{' '}</li>
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/roles'>Roller</NavLink>{' '}</li>
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/mypage'>Min Side</NavLink>{' '}</li>
-                          <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/mycompetence'>Min Kompetanse</NavLink>{' '}</li>
+                        <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/mycompetence'>Min Kompetanse</NavLink>{' '}</li>
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} exact to='/members'>Medlemmer</NavLink>{' '}</li>
                         <li className={"navli"}><NavLink activeStyle={{color: 'white'}} to='/signout'>Logg ut</NavLink>{' '}</li>
                         <li className={"aboutli"}><NavLink activeStyle={{color: 'white'}} to='/about'>Om</NavLink>{' '}</li>
@@ -75,11 +84,12 @@ class Menu extends React.Component<{}> {
         }
         return (
             <div>
-
             </div>
         );
     }
-
+    
+    // If there is a user that is signed inn then it will be directed to the home page
+    // If not then it will be directed to the sign in page
     componentDidMount() {
       let signedInUser = userService.getSignedInUser();
       if (signedInUser) {
@@ -97,7 +107,10 @@ class Menu extends React.Component<{}> {
 
 let menu: ?Menu;
 
+// This is the page for signing in and it only shows up if your not signed in
 class SignIn extends React.Component<{}> {
+  
+  // Refs used in the class
   refs: {
     signInUsername: HTMLInputElement,
     signInPassword: HTMLInputElement,
@@ -105,6 +118,8 @@ class SignIn extends React.Component<{}> {
   };
 
   render() {
+        // In this return statment is all the items we see in the page or the places they are made if they are made after
+        // the component is mounted.
         return (
             <div className ="limiter">
                 <div className ="container-login100" style={ { backgroundImage: `url(require("image-background.jpg"))` } }>
@@ -147,7 +162,9 @@ class SignIn extends React.Component<{}> {
     if(menu) {
         menu.forceUpdate();
     }
-
+    
+    // Function for the sign in button when you click it and your informasjon is correct you got to the home page
+    // It also checks if your an admin or not
     this.refs.signInButton.onclick = () => {
       userService.signIn(this.refs.signInUsername.value, this.refs.signInPassword.value).then(() => {
 
@@ -173,11 +190,9 @@ class SignIn extends React.Component<{}> {
   }
 }
 
-let validationNumberForForgottonPassword;
-let emailForForgottonPassword;
-let accountNameForForgottonPassword;
-
+// This is the class that for making a new user
 class NewMember extends React.Component<{}> {
+  // Refs used in this class
   Refs: {
       username:HTMLInputElement,
       name:HTMLInputElement,
@@ -194,7 +209,7 @@ class NewMember extends React.Component<{}> {
       submitMember:HTMLInputElement,
       goBack:HTMLButtonElement
   }
-
+  
   render() {
         return <div>
             <div className ="limiter">
@@ -220,7 +235,7 @@ class NewMember extends React.Component<{}> {
                             <div className="wrap-input100">Postnummer:  <input className="input" type="text" ref="zipCode" placeholder="7100" required/></div>
                             <div className="wrap-input100">Mobilnummer:  <input className="input" type="text" ref="phone" placeholder="11225588" required/></div>
 
-                            <input className="bigButton" type="submit" ref="addMemberButton" value="Opprett Bruker"/>
+                            <input className="button1" type="submit" ref="addMemberButton" value="Opprett Bruker"/>
                             <div className="back">
                                 <button className="backB" ref="goBack">
                                     Tilbake
@@ -234,9 +249,12 @@ class NewMember extends React.Component<{}> {
 }
   componentDidMount() {
     newmember = this;
+    // Go back function for the go back button. It makes you go back to the sign in page
     this.refs.goBack.onclick = () => {
       history.push("/signIn");
     }
+    // This is the function for what happens when you click confirm your details and try to make your new account
+    // If there is something wrong with the detils you put in then it wont let you put it in and an error will show
     this.refs.submitMember.onsubmit = () => {
 
       memberService.checkAccountDetailsFromUsernameAndEmail(this.refs.username.value, this.refs.email.value).then((result) => {
@@ -278,7 +296,16 @@ class NewMember extends React.Component<{}> {
 let newmember: ?NewMember;
 let submitMember;
 
+
+// These are global variables for the forgotton password classes. Usually you wouldnt use global variables, but we have
+// and when we have we have made the name something that cannot be mistaken for something else. This is important
+let validationNumberForForgottonPassword;
+let emailForForgottonPassword;
+let accountNameForForgottonPassword;
+
+// This is the first of the forgotton password pages
 class ForgottonPassword extends React.Component<{}> {
+    // Refs used in the class
     refs: {
         emailAddress: HTMLInputElement,
         recoverPasswordButton: HTMLButtonElement,
@@ -300,7 +327,7 @@ class ForgottonPassword extends React.Component<{}> {
                         <br />
                         <div className="wrap-input100">Epost: <input className="inputE" type="text" ref="emailAddress" /></div>
                         <div className="back">
-                            <button className="bigButton" ref="recoverPasswordButton"> Gjennopprett passord </button>
+                            <button className="button1" ref="recoverPasswordButton"> Gjennopprett passord </button>
                             <button className="backB" ref="backButton"> Tilbake </button>
                         </div>
                     </div>
@@ -310,10 +337,14 @@ class ForgottonPassword extends React.Component<{}> {
 }
 
     componentDidMount() {
+        // Go back to the sign in page button
         this.refs.backButton.onclick = () => {
           history.push("/signIn");
         }
-
+        
+        // This is the function for the button where you request to change your password because you forgot it
+        // It will find the account connected to your email and send you a validation code.
+        // If no account is found with that email it will say so
         this.refs.recoverPasswordButton.onclick = () => {
             forgottonPasswordService.getUserFromEmail(this.refs.emailAddress.value).then((result) => {
                 accountNameForForgottonPassword = result.Fornavn;
@@ -324,7 +355,6 @@ class ForgottonPassword extends React.Component<{}> {
             forgottonPasswordService.getUserFromEmailCheck(this.refs.emailAddress.value).then(() => {
                 validationNumberForForgottonPassword = (Math.floor(Math.random() * 9999));
                 emailForForgottonPassword = this.refs.emailAddress.value;
-                console.log(validationNumberForForgottonPassword);
                 forgottonPasswordService.sendEmail(this.refs.emailAddress.value, validationNumberForForgottonPassword, accountNameForForgottonPassword)
                 history.push("/ForgottonPasswordValidation")
             }).catch((error: Error) => {
@@ -334,6 +364,7 @@ class ForgottonPassword extends React.Component<{}> {
     }
 }
 
+// This is the page where it asks you for a validation code for changing your password
 class ForgottonPasswordValidation extends React.Component<{}> {
     refs: {
         validatingNumberInput: HTMLInputElement,
@@ -351,7 +382,7 @@ class ForgottonPasswordValidation extends React.Component<{}> {
                         </span>
                             <div className="wrap-input100">Kode: <input className="input" type="text" ref="validatingNumberInput" />
                             <div className={"back"}>
-                                <button className="bigButton" ref="validatingButton"> Valider koden </button>
+                                <button className="button1" ref="validatingButton"> Valider koden </button>
                                 <button className="backB" ref="backButton"> Tilbake </button>
                             </div>
                         </div>
@@ -362,11 +393,12 @@ class ForgottonPasswordValidation extends React.Component<{}> {
 }
 
     componentDidMount() {
+        // Go back button
         this.refs.backButton.onclick = () => {
           history.push("/signIn");
         }
 
-        console.log(validationNumberForForgottonPassword);
+        // Checks if the validation code you typed inn was correct
         this.refs.validatingButton.onclick = () => {
             if(this.refs.validatingNumberInput.value == validationNumberForForgottonPassword) {
                 history.push("/ForgottonPasswordChange");
@@ -377,6 +409,8 @@ class ForgottonPasswordValidation extends React.Component<{}> {
     }
 }
 
+// This is the class that shows at the final stage of forgotton password operation.
+// Here you can change your password
 class ForgottonPasswordChange extends React.Component<{}> {
     refs: {
         passwordChangeInput: HTMLInputElement,
@@ -400,7 +434,7 @@ class ForgottonPasswordChange extends React.Component<{}> {
                                 Bekreft nytt passord: <input className="input" type="password" ref="passwordConfirmChangeInput" />
                             </div>
                             <div className={"back"}>
-                                <button className="bigButton" ref="changePasswordButton"> Forandre passord </button>
+                                <button className="button1" ref="changePasswordButton"> Forandre passord </button>
                                 <button className="backB" ref="backButton"> Tilbake </button>
                             </div>
                     </div>
@@ -410,10 +444,13 @@ class ForgottonPasswordChange extends React.Component<{}> {
 }
 
     componentDidMount() {
+        // Go back button function
         this.refs.backButton.onclick = () => {
           history.push("/signIn");
         }
 
+        // This is the function Where it changes your password and matches the two input fields to each other
+        // This is to make sure you dont type in the wrong password when you are changing it
         this.refs.changePasswordButton.onclick = () => {
             if (this.refs.passwordChangeInput.value == this.refs.passwordConfirmChangeInput.value) {
                 forgottonPasswordService.changePassword(emailForForgottonPassword, this.refs.passwordChangeInput.value).then(() => {
@@ -428,34 +465,43 @@ class ForgottonPasswordChange extends React.Component<{}> {
     }
 }
 
+
+// This is a array for all the events on the calendar
 let eventsForCalendarInHomeClass = [];
+// This is the class for the home page with the calendar with all the events
 class Home extends React.Component<{}> {
 
     componentDidMount() {
+      // Because of an eariler bug it will only show the calender when a user is signed in
       let signedInUser = userService.getSignedInUser();
       if(signedInUser) {
         this.getEvents();
         this.createCalendar();
       }
     }
-
+    
+    // This method creates the calendar
     createCalendar() {
       $("#calendar").fullCalendar({
         defaultView: 'month',
         height: 'auto',
+        // Here we get the events from the array
         events: eventsForCalendarInHomeClass,
         eventColor: "#ed2e2e",
+        // Here we set it so that when you click an event it will make you go to that event
         eventClick: function(calEvent, jsEvent, view) {
             history.push("/editevent/" + calEvent.id)
         }
       })
     }
-
+    
+    // This is a method for updating the calendar
     updateCalendar() {
       $('#calendar').fullCalendar('destroy');
       this.createCalendar();
     }
-
+    
+    // This method will get all the events and put the inside the array which is used in the createCalendar method
     getEvents() {
       eventService.getEvents().then((result) => {
         eventsForCalendarInHomeClass = [];
@@ -488,6 +534,7 @@ class Home extends React.Component<{}> {
 
 }
 
+// This is the class for the page where you add an event
 class AddEvent extends React.Component<{}> {
     constructor() {
         super();
@@ -510,6 +557,7 @@ class AddEvent extends React.Component<{}> {
     };
 
     render() {
+      // Here you make an array with all the contact persons
       let listContacts = [<option>Velg Kontaktperson</option>];
       for(let contact of this.external) {
           listContacts.push( <option key={contact.EksternKontaktID} value={contact.EksternKontaktID}> {contact.Fornavn + " " + contact.Mellomnavn + " " + contact.Etternavn} </option> );   //bruker key prop for optimalisering
@@ -534,18 +582,19 @@ class AddEvent extends React.Component<{}> {
                 {listContacts}
               </datalist>
 
-            <button className="bigButton" ref="addEventButton">Opprett arrangement</button>
+            <button className="button1" ref="addEventButton">Opprett arrangement</button>
         </div>
     }
 
     componentDidMount() {
+        // This method gets all the contacts from the database and puts them in this.external
         externalService.getContacts().then((res) => {
           this.external = res;
           this.forceUpdate();
         });
 
         // This function gets every value from the input-fields and uses a query from the service-file.
-        // The method eventService.addEvent makes it possible to add events to the databas
+        // The method eventService.addEvent makes it possible to add events to the database
         this.refs.addEventButton.onclick = () => {
             eventService.addEvent(this.refs.addEventName.value,
                 this.refs.addZipCode.value,
@@ -559,7 +608,6 @@ class AddEvent extends React.Component<{}> {
                 this.refs.addMeetingTime.value,
                 this.refs.addContactPerson.value).then((id) => {
                 history.push('/addevent/'+id);
-                console.log("Arrangmenet lagt til!");
             }).catch((error: Error) => {
                 if(errorMessage) errorMessage.set("Error adding the event.");
             });
@@ -568,6 +616,7 @@ class AddEvent extends React.Component<{}> {
 
 }
 
+// This is the class for the page where you see all the events
 class Event extends React.Component<{}> {
   constructor() {
     super();
@@ -577,8 +626,9 @@ class Event extends React.Component<{}> {
   render() {
     let member = userService.getSignedInUser();
     let myList = [];
+    // This is a for loop that makes the accept or deny shift buttons and checks if you have accept or denied.
+    // It also makes the list where it shows you the events you have been signed up for
     for(let event of this.myEventList) {
-      console.log(event);
       let check;
       let check2;
       if (event.Godkjenning==1) {
@@ -589,12 +639,14 @@ class Event extends React.Component<{}> {
         myList.push(<tr key={event.VaktRolleId}> <td>{event.OppmoteDato.toString().substring(0, 10)}</td> <NavLink activeStyle={{color: 'red'}} to={'/editevent/'+event.idArrangementer}> <td>{event.Arrangement_Navn}</td></NavLink> <td>{event.Rolle}</td> <td>{check}{check2}</td> </tr>)
     }
 
-
+    
+    // This for loop makes all the events appear in a table
     let listEvents = [];
     for(let eventa of this.events) {
         listEvents.push(<tr key={eventa.idArrangementer}><td>{eventa.OppmoteDato.toString().substring(0, 10)}</td><NavLink activeStyle={{color: 'red'}} to={'/editevent/'+eventa.idArrangementer}><td>{eventa.Arrangement_Navn}</td></NavLink><td>{eventa.Beskrivelse}</td></tr>) //bruker key prop for optimalisering
       }
-
+    
+    // Heres what the admins see on the page
     if (localStorage.getItem("adminCheckVariable") == 1) {
       return (
             <div>
@@ -629,7 +681,9 @@ class Event extends React.Component<{}> {
                 <button className= "button" ref="goToEventButton">Opprett arrangement</button>
             </div>
           );
-    } if (localStorage.getItem("adminCheckVariable") == 0) {
+    } 
+    // Heres what the members see
+    if (localStorage.getItem("adminCheckVariable") == 0) {
       return (
             <div>
                  <div>
@@ -670,22 +724,25 @@ class Event extends React.Component<{}> {
   componentDidMount() {
     let member = userService.getSignedInUser();
       this.getMyEvents(member.ID);
+      // Here we get all the events and puts them in this.events
       eventService.getEvents().then((events) => {
           this.events = events;
           this.forceUpdate();
       }).catch((error) => {
           if (errorMessage) errorMessage.set('Error getting notes: ' + error.message);
       });
+      // Here we go to a button only for admins
       if (localStorage.getItem("adminCheckVariable") == 1) {
+      // This is the function for the button to go to the add an event
       this.refs.goToEventButton.onclick = () => {
           history.push('/addevent');
-          console.log("Hoppet til addevent");
       };
     }
 
 
   }
-
+  
+  // Gets all of your events and puts them in this.myEventsList
   getMyEvents(ID) {
     eventService.getMembersEvents(ID).then((res) => {
       console.log(res);
@@ -693,14 +750,15 @@ class Event extends React.Component<{}> {
       this.forceUpdate();
     })
   }
-
+   
+    // This is the method that updates the database with if you accepted or denied the shift
   eventAnswer(myId, vaktRolleId, answer) {
     rosterService.addToEventRosterByVaktRolleId(myId, vaktRolleId, answer).then((res) => {
-      console.log(res);
       this.componentDidMount();
     })
   }
-
+  
+  // This is the method that gives you your shift points when you accept a shift
   shiftPoints(id) {
     memberService.getMember(id).then((result) => {
       let vaktpoeng = result.Vaktpoeng;
@@ -713,7 +771,7 @@ class Event extends React.Component<{}> {
 
 }
 
-
+// Recieves an event ID and fetches the event details and role list to show them. If user is admin he can edit them.
 class EditEvent extends React.Component {
     constructor(props) {
         super(props);
@@ -742,7 +800,7 @@ class EditEvent extends React.Component {
         this.roster = [];
         this.eventInterested = [];
     }
-
+// Checking if user is an admin or normal user, if admin the event and role list will be rendered in editable HTML input elements, but if user is normal the elements will not be editable and see less elements from the role list.
     render() {
       let listContacts = [];
       for(let contact of this.external) {
@@ -753,8 +811,11 @@ class EditEvent extends React.Component {
       for(let inter of this.eventInterested) {
           interested.push(<tr key={inter.ID}><td>{inter.Fornavn} {inter.Mellomnavn} {inter.Etternavn}</td> <td> {inter.Telefon} </td></tr>)
       }
-
+//                          
+// This will render if user is admin.
       if (localStorage.getItem("adminCheckVariable") == 1) {
+
+// Making a list of the roster both roles with members and empty roles 
         let rosterList = [];
         for(let roster of this.roster) {
           let button : ?HTMLButtonElement;
@@ -763,34 +824,37 @@ class EditEvent extends React.Component {
           if (roster.Godkjenning==1) {check = "Godkjent"}
              else if (roster.Godkjenning==2) { check = "Avslått" }
              else { check = "Venter"}
-
+// If the role has a member this is made. Buttons for empty and delete role.
           if (roster.ID != null) {
             button = <button className="button" onClick={() => {this.remove(roster.VaktRolleId), this.shiftPoints(roster.ID, roster.Godkjenning)}}>Tøm</button>;
             rosterList.push(<tr key={roster.VaktRolleId}><td>{roster.Rolle}</td><td>{roster.Fornavn} {roster.Etternavn}</td><td>{roster.Telefon}</td> <td>{check}</td> {button2} {button}</tr>)
           }
-
+// If role is empty this is made.
           if (roster.ID == null) {
             button = ""
             rosterList.push(<tr key={roster.VaktRolleId}><td>{roster.Rolle}</td><td>{roster.Fornavn} {roster.Etternavn}</td><td>{roster.Telefon}</td> <td></td> {button2} </tr>)
           }
         }
-
+                           
+// Making a list of the 20 members with the least points
         let pointList = [];
         for(let roster of this.points) {
             pointList.push(<tr key={roster.ID}><td>{roster.Fornavn} {roster.Mellomnavn} {roster.Etternavn}</td><td>{roster.Telefon}</td> <td>{roster.Vaktpoeng}</td></tr>)
         }
 
+// Making roles option list.
         let listRoles = [<option>Velg Ny Rolle</option>];
         for(let r of this.roles) {
             listRoles.push( <option key={r.rolle_id} value={r.rolle_id}> {r.Rolle} </option> );
           }
 
-
+// Making open roles option list.
           let openRosterList = [<option>Velg Åpen Rolle</option>];
           for(let r of this.openRoster) {
               openRosterList.push( <option key={r.VaktRolleId} value={r.VaktRolleId}> {r.Rolle} </option> );
             }
-
+                         
+// Making person list option list.
           let listPersons = [];
           for(let p of this.personsOpen) {
               listPersons.push( <option key={p.ID} value={p.ID}> {p.Fornavn} {p.Mellomnavn} {p.Etternavn} </option> );
@@ -816,7 +880,7 @@ class EditEvent extends React.Component {
                           {listContacts}
                         </datalist>
                   </div>
-                  <button className="bigButton" ref = "changeButton">Endre</button>
+                  <button className="button1" ref = "changeButton">Endre</button>
 
                     {this.interest}
 
@@ -872,7 +936,12 @@ class EditEvent extends React.Component {
 
               </div>
           );
+              
+//
+// This will render for normal user.
       } if (localStorage.getItem("adminCheckVariable") == 0) {
+                                                              
+// Making event list for logged in users registered events                                                             
         let rosterList = [];
         for(let roster of this.roster) {
           let check;
@@ -883,7 +952,7 @@ class EditEvent extends React.Component {
           if (roster.ID != null) {
             rosterList.push(<tr key={roster.VaktRolleId}><td>{roster.Rolle}</td><td>{roster.Fornavn} {roster.Mellomnavn} {roster.Etternavn}</td><td>{roster.Telefon}</td> <td>{check}</td></tr>)
           }
-
+                            
           if (roster.ID == null) {
             rosterList.push(<tr key={roster.VaktRolleId}><td>{roster.Rolle}</td><td>{roster.Fornavn} {roster.Mellomnavn} {roster.Etternavn}</td><td>{roster.Telefon}</td><td></td> </tr>)
           }
@@ -927,7 +996,7 @@ class EditEvent extends React.Component {
       }
 
     }
-
+// Fetching the refs for buttons and details and coupling to outgoing functions/methods, depending on if the logged in user is admin or normal user to match the refs on the rendered HTML elements.
     componentDidMount() {
       if (localStorage.getItem("adminCheckVariable") == 1) {
         this.refs.changeButton.onclick = () => {
@@ -950,13 +1019,14 @@ class EditEvent extends React.Component {
                 if(errorMessage) errorMessage.set('Error getting events: ' + error.message);
             });
         }
-
+// Fetches values for the new role button and adds new roles to the role list.
         this.refs.newRoleButton.onclick = () => {
           rosterService.addRoleToEvent(eventId, this.refs.newRole.value).then(
             this.componentDidMount()
           )
         }
 
+// Refers a button to place a selected member onto a selected role and sends an email to the users corresponding email.
         this.refs.enlistButton.onclick = () => {
           rosterService.addToEventRosterByVaktRolleId(this.refs.personsInput.value, this.refs.openListInput.value, 0).then(
             this.componentDidMount()
@@ -973,11 +1043,12 @@ class EditEvent extends React.Component {
         }
       }
 
+// Fetches the external contacts to the selector
       externalService.getContacts().then((res) => {
         this.external = res;
         this.forceUpdate();
       });
-
+// Fetches the event details
         eventService.getEvent(this.idArrangementer).then((events) => {
             this.refs.changeTitle.value = events.Arrangement_Navn;
             this.refs.changeText.value = events.Beskrivelse;
@@ -995,39 +1066,45 @@ class EditEvent extends React.Component {
         }).catch((error) => {
             if(errorMessage) errorMessage.set('Error getting events: ' + error.message);
         });
-
+// Gets the event ID value to the interest button
           this.getInterestButton(this.idArrangementer);
-
 
 
 
           let user = userService.getSignedInUser();
           let eventId = this.idArrangementer;
+
+// Fetching the people that are interested in the event.
             eventService.getInterestedInEvent(eventId).then((res) => {
-              console.log(res);
                 this.eventInterested = res;
                 this.forceUpdate();
             })
+
+// Fetching the people that are put on the event roster.
             rosterService.getRosterFromEvent(eventId).then((res) => {
                 this.roster = res;
                 this.forceUpdate();
             })
+
+// Fetching the 20 members with lowest points.
             memberService.getMembersVaktpoengAsc().then((res) => {
               this.points = res;
               this.forceUpdate();
             })
 
+// Fethcing roles that can be made
             roleService.getRoles().then((res) => {
               this.roles = res;
               this.forceUpdate();
             });
 
-
+// Fetching members list for members that can be placed on the roster
             rosterService.checkRosterForInvertedMembers(eventId).then((res) => {
                 this.personsOpen = res;
                 this.forceUpdate();
             });
 
+// Fetching open roster list
             rosterService.getOpenRoster(eventId).then((res) => {
               this.openRoster = res;
               this.forceUpdate();
@@ -1036,6 +1113,7 @@ class EditEvent extends React.Component {
 
     }
 
+// Function for reseting members points when removing them from the event roster IF they have gotten points for accepting the event role.
     shiftPoints(id, check) {
       if (check == 1) {
         memberService.getMember(id).then((result) => {
@@ -1048,29 +1126,29 @@ class EditEvent extends React.Component {
       }
     }
 
+// Function for removing a member from a role
     remove(VaktRolleId) {
       rosterService.addToEventRosterByVaktRolleId(null, VaktRolleId, null)
       this.componentDidMount();
     }
 
+// Function for removing a role on the roster
     removeRole(VaktRolleId) {
-      console.log(VaktRolleId);
       rosterService.deleteRosterByVaktRolleId(VaktRolleId);
       this.componentDidMount();
     }
 
+// Makes a button to indicate interest in the arrangement
     getInterestButton(ArrangementID) {
       let user = userService.getSignedInUser();
-      console.log(ArrangementID + " and " + user.ID );
       eventService.interestEventCheck(ArrangementID, user.ID).then((res) => {
-        console.log(res);
         if (res==undefined) {
-              this.interest = <button className="bigButton" onClick={() => {
+              this.interest = <button className="button1" onClick={() => {
                 eventService.interestEvent(ArrangementID, user.ID);
                 this.componentDidMount()}
               }>Meld Interesse</button>
         } else {
-              this.interest = <button className="bigButton" onClick={() => {
+              this.interest = <button className="button1" onClick={() => {
                 eventService.removeInterestEvent(ArrangementID, user.ID);
                 this.componentDidMount()}
               }>Meld Ikke interessert</button>
@@ -1084,10 +1162,10 @@ class EditEvent extends React.Component {
     componentWillReceiveProps(newProps) {
         this.idArrangementer = newProps.match.params.idArrangementer;
         this.componentDidMount();
-        // To update the view and show the correct note data, rerun database query here
     }
 }
 
+// This class shows a list of crew templates and if user is admin a button to Add Crew.
 class Crew extends React.Component<{}> {
     constructor() {
         super();
@@ -1137,7 +1215,6 @@ class Crew extends React.Component<{}> {
       if (localStorage.getItem("adminCheckVariable") == 1) {
         this.refs.goToAddCrewButton.onclick = () => {
             history.push('/addcrew');
-            console.log("Hoppet til addCrew");
         };
       }
         crewService.getShiftTemplate().then((crews) => {
@@ -1151,26 +1228,28 @@ class Crew extends React.Component<{}> {
 }
 let crewList;
 
+// This page class comes from Crew. Can create new crew templates.
 class AddCrew extends React.Component<{}> {
     refs: {
         crewName: HTMLInputElement,
         addRoleButton: HTMLButtonElement
     };
+
     render() {
         return <div>
             <h1>Opprett mannskap</h1><br />
 
             Navn: <input className="input" type="text" ref="crewName" /><br />
-            <button className="bigButton" ref="addCrewButton" disabled="disabled">Opprett mannskap</button>
+            <button className="button1" ref="addCrewButton" disabled="disabled">Opprett mannskap</button>
         </div>
     }
+
     componentDidMount() {
         this.refs.addCrewButton.onclick = () => {
             //her skal det stå eventList = this?
             crewService.addShiftTemplate(this.refs.crewName.value
                 ).then(() => {
                 history.push('/crew');
-                console.log("Mannskap lagt til!");
             }).catch((error: Error) => {
                 if(errorMessage) errorMessage.set("Error adding the crew.");
             });
@@ -1178,6 +1257,7 @@ class AddCrew extends React.Component<{}> {
     }
 }
 
+// This class page shows the users competences in a list and has an input to add more competences to the user.
 class MyCompetence extends React.Component<{}> {
   constructor() {
     super();
@@ -1237,7 +1317,6 @@ class MyCompetence extends React.Component<{}> {
 
     competenceService.getCompetences().then(
       (result) => {
-        console.log(result);
           this.newCompetenceList = result;
           this.forceUpdate();
       }
@@ -1251,7 +1330,7 @@ class MyCompetence extends React.Component<{}> {
 
 }
 
-
+// This page class has a list of roles and if logged in user is admin they can be clicked to go to edit role and there is a button to add new role.
 class Roles extends React.Component<{}> {
     constructor() {
         super();
@@ -1306,7 +1385,6 @@ class Roles extends React.Component<{}> {
       if (localStorage.getItem("adminCheckVariable") == 1) {
         this.refs.goToRoleButton.onclick = () => {
             history.push('/addrole');
-            console.log("Hoppet til addrole");
         };
       }
         roleService.getRoles().then((roles) => {
@@ -1315,10 +1393,10 @@ class Roles extends React.Component<{}> {
         }).catch((error) => {
             if (errorMessage) errorMessage.set('Error getting roles: ' + error.message);
         });
-        //eventList = this;
     }
 }
 
+// This page class comes from Roles. Here one can add new roles.
 class AddRole extends React.Component<{}> {
     refs: {
         roleName: HTMLInputElement,
@@ -1331,8 +1409,6 @@ class AddRole extends React.Component<{}> {
 
             Navn: <input className="input" type="text" ref="roleName" /><br />
             Beskrivelse: <input className="input" type="text" ref="roleDescription" />
-            Vaktmal:<br />
-            Kurs?: <br /><br />
 
             <button className="button" ref="addRoleButton">Opprett rolle</button>
         </div>
@@ -1344,7 +1420,6 @@ class AddRole extends React.Component<{}> {
                 this.refs.roleDescription.value
             ).then((rolle_id) => {
                 history.push('/roles');
-                console.log("Rolle lagt til!");
             }).catch((error: Error) => {
                 if(errorMessage) errorMessage.set("Error adding the role.");
             });
@@ -1352,6 +1427,7 @@ class AddRole extends React.Component<{}> {
     }
 }
 
+// This page class comes from Roles. Here one can edit the selected role.
 class EditRole extends React.Component<{}> {
     constructor(props) {
         super(props);
@@ -1370,7 +1446,7 @@ class EditRole extends React.Component<{}> {
                     Navn: <input className="input" type='text' ref='changeRoleName'  /><br />
                     Krav: <input className="input" type="text" ref='changeCompetence'  />
                 </div>
-                <button className="bigButton" ref = "changeButton">Endre</button>
+                <button className="button1" ref = "changeButton">Endre</button>
             </div>
         );
     }
@@ -1404,10 +1480,10 @@ class EditRole extends React.Component<{}> {
     componentWillReceiveProps(newProps) {
         this.rolle_id = newProps.match.params.rolle_id;
         this.componentDidMount();
-        // To update the view and show the correct note data, rerun database query here
     }
 }
 
+// On this class page the logged in user's details are fetched and listed for edit.
 class MyPage extends React.Component<{}> {
   constructor() {
     super();
@@ -1448,7 +1524,7 @@ class MyPage extends React.Component<{}> {
                             Fødselsdato:  <input className="inputSmall" type='date' ref='changeDateOfBirth'  /><br/>
                             E-post: <input className="inputE" type='email' ref='changeEmail'  /><br/>
                     </div>
-                        <input className="bigButton" type="submit" ref="changeButton" value="Endre"/>
+                        <input className="button1" type="submit" ref="changeButton" value="Endre"/>
                 </form>
             </div>
         )
@@ -1488,6 +1564,7 @@ class MyPage extends React.Component<{}> {
 }
 let myPage: ?MyPage
 
+// In this class page all the active members are listed. A search button on top replaces the memberlist with the returned searched users. If logged in user is admin the listed members are clickable and leads to editmember class.
 class Members extends React.Component<{}> {
   constructor() {
     super();
@@ -1566,17 +1643,14 @@ class Members extends React.Component<{}> {
       if(localStorage.getItem("adminCheckVariable") == i) {
         choices1[i](user.ID).then(
           (result) => {
-            console.log('TEST');
             this.memberList = result;
             this.forceUpdate();
           }).catch()
 
           this.refs.searchButton.onclick = () => {
             search = this.refs.search.value + "%";
-            console.log(search);
             choices2[i](search).then(
               (result) => {
-                console.log(result);
                 this.memberList = result;
                 this.forceUpdate();
               }
@@ -1593,6 +1667,7 @@ class Members extends React.Component<{}> {
 }
 let memberPage: ?Members
 
+//This class page comes from Members. Only admin users have access here and can edit all user details including username which is not possible on MyPage.
 class EditMember extends React.Component<{}> {
 
     constructor(props) {
@@ -1632,7 +1707,7 @@ class EditMember extends React.Component<{}> {
                     Epost : <input className="inputE" type="text" ref="changeEmail" />
                     KontoAktiv : <input className="inputE" type="text" ref="changeKontoAktiv" />
                 </div>
-                <button className="bigButton" ref = "changeButton">Endre</button>
+                <button className="button1" ref = "changeButton">Endre</button>
             </div>
         );
 }
@@ -1675,6 +1750,7 @@ class EditMember extends React.Component<{}> {
   }
 }
 
+// This class page shows a button for the user to log out to the signIn class page.
 class SignOut extends React.Component<{}> {
   refs: {
     signOut: HTMLInputElement
@@ -1700,13 +1776,13 @@ class SignOut extends React.Component<{}> {
       localStorage.setItem("adminCheckVariable", 0);
       history.push("/signin");
       this.forceUpdate();
-      console.log("Logget ut");
     };
   }
 }
 
 let signOut: ?SignOut;
 
+// This page class shows the developers.
 class About extends React.Component<{}> {
     render() {
         return <div>
@@ -1718,6 +1794,8 @@ class About extends React.Component<{}> {
     }
 }
 
+
+// The hashrouter is keeping track of the class pages and their paths.
 let root = document.getElementById("root");
 if(root) {
     ReactDOM.render((

@@ -1,5 +1,3 @@
-/*------------------------------------------------------------------
-[ General ]*/
 h1 {
     color: #5e5e5e
 }
@@ -7,215 +5,16 @@ h1 {
 div {
     font-family: Sans-serif;
 }
-
-/*------------------------------------------------------------------
-[ id ]*/
-
-#calendar { /* for calendar in Home page*/
-    max-width: 900px;
-    margin: 40px auto;
-}
-
-/* Table */
-#bigTable {
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
-}
-
-#bigTable td, #customers th {
-    border: 1px solid #ddd;
-    padding: 8px;
-}
-
-#bigTable tr:nth-child(even){background-color: #f2f2f2;}
-
-#bigTable tr:hover {background-color: #ddd;}
-
-#bigTable th {
-    padding-top: 12px;
-    padding-bottom: 12px;
-    text-align: left;
-    background-color: #f8635c;
-    color: white;
-}
-
-/* Placement */
-#floatLeft {
-    float: left;
-}
-
-#floatLeft a {
-    display: block;
-    color: white;
-    text-align: center;
-    text-decoration: #8fdf82;
-}
-
-#floatRight {
-    float: right;
-}
-
-#floatRight a {
-    display: block;
-    color: white;
-    text-align: center;
-    text-decoration: #8fdf82;
-}
-
-#white {
-    color: white;
-}
-
-/*------------------------------------------------------------------
-[ Classes ]*/
-
-.navigate { /* NavBar */
-    font-family: Sans-serif;
-    font-size: 24px;
-}
-
-/* Buttons */
-.button {
-    background-color: #4CAF50; /* Green */
-    border: none;
-    color: white;
-    padding: 16px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    -webkit-transition-duration: 0.4s; /* Safari */
-    transition-duration: 0.4s;
-    cursor: pointer;
-}
-
-.button {
-    background-color: white;
-    color: black;
-    border: 2px solid #f44336;
-}
-
-.button:hover {
-    background-color: #f44336;
-    color: white;
-}
-.bigButton {
-    background-color: #4CAF50; /* Green */
-    border: none;
-    color: white;
-    padding: 16px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    -webkit-transition-duration: 0.4s; /* Safari */
-    transition-duration: 0.4s;
-    cursor: pointer;
-    width: 60%;
-    margin-left: 20%;
-    margin-right: 20%;
-}
-
-.bigButton {
-    background-color: white;
-    color: black;
-    border: 2px solid #f44336;
-}
-
-.bigButton:hover {
-    background-color: #f44336;
-    color: white;
-}
-
-/* Inputs */
-.input { /* used in text fields*/
-    font-family: Sans-serif;
-    font-size: 15px;
-    color: #000000;
-    line-height: 1;
-    border: 2px solid #444444;
-    border-radius: 4px;
-
-    display: block;
-    width: 40%;
-    height: 35px;
-
-    padding: 5px;
-}
-
-.inputE {   /* is used for a wider input field */
-    font-family: Sans-serif;
-    font-size: 15px;
-    color: #000000;
-    line-height: 1;
-    border: 2px solid #444444;
-    border-radius: 4px;
-
-    width: 250px;
-    height: 35px;
-
-    padding: 5px;
-}
-
-.inputBig { /* Used as a text area */
-    font-family: Sans-serif;
-    font-size: 15px;
-    color: #000000;
-    line-height: 1;
-    border-radius: 4px;
-
-    height: 80px;
-    padding: 12px 20px;
-    box-sizing: border-box;
-    border: 2px solid #444444;
-    border-radius: 4px;
-    resize: none;
-
-    display: block;
-    width: 40%;
-
-    padding: 5px;
-}
-
-.inputSmall { /* A smaller input text field */
-    font-family: Sans-serif;
-    font-size: 15px;
-    color: #000000;
-    line-height: 1;
-    border: 2px solid #444444;
-    border-radius: 4px;
-
-    width: 10%;
-    height: 20px;
-
-    margin-top: 5px;
-    margin-bottom: 5px;
-    margin-right: 5px;
-
-    padding: 5px;
-}
-/* Thicker text */
 .bold {
     font-weight: bold;
 }
 
-.search[type=text] { /* Used for the search field in Member page */
-    width: 250px;
-    box-sizing: border-box;
-    border: 2px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-    background-color: white;
-    padding: 12px 20px 12px 40px;
-    -webkit-transition: width 0.4s ease-in-out;
-    transition: width 0.4s ease-in-out;
+/*------------------------------------------------------------------
+[ Navbar ]*/
+.navigate {
+    font-family: Sans-serif;
+    font-size: 24px;
 }
-/*===========================================================================================
-[ Every class under this comment is used for sign in, forgot password and new member pages]*/
-
 /*Login Form 3 by Colorlib*/
 
 .navul {
@@ -281,7 +80,7 @@ div {
     background-color: #5e5e5e;
 }
 /*------------------------------------------------------------------
-[ log in classes ]*/
+[ Innlogging ]*/
 .limiter {
     width: 100%;
     margin: 0 auto;
@@ -467,6 +266,65 @@ div {
 .has-val.input100 {
     padding-left: 5px;
 }
+
+
+/*==================================================================
+[ Restyle Checkbox ]*/
+
+.contact100-form-checkbox {
+    padding-left: 5px;
+    padding-top: 5px;
+    padding-bottom: 35px;
+}
+
+.input-checkbox100 {
+    display: none;
+}
+
+.label-checkbox100 {
+    font-family: Poppins-Regular;
+    font-size: 13px;
+    color: #fff;
+    line-height: 1.2;
+
+    display: block;
+    position: relative;
+    padding-left: 26px;
+    cursor: pointer;
+}
+
+.label-checkbox100::before {
+    content: "\f26b";
+    font-family: Material-Design-Iconic-Font;
+    font-size: 13px;
+    color: transparent;
+
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 2px;
+    background: #fff;
+    left: 0;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    -moz-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    -o-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+.input-checkbox100:checked + .label-checkbox100::before {
+    color: #555555;
+}
+
+
 /*------------------------------------------------------------------
 [ Button ]*/
 .container-login100-form-btn {
@@ -630,8 +488,197 @@ div {
         opacity: 1;
     }
 }
+/*------------------------------------------------------------------
+[ Rolletabell ]*/
+#bigTable {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
 
-.backButton {  /* "Go back" buttons*/
+#bigTable td, #customers th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#bigTable tr:nth-child(even){background-color: #f2f2f2;}
+
+#bigTable tr:hover {background-color: #ddd;}
+
+#bigTable th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #f8635c;
+    color: white;
+}
+.button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.button {
+    background-color: white;
+    color: black;
+    border: 2px solid #f44336;
+}
+
+.button:hover {
+    background-color: #f44336;
+    color: white;
+}
+.button1 {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+    width: 60%;
+    margin-left: 20%;
+    margin-right: 20%;
+}
+
+.button1 {
+    background-color: white;
+    color: black;
+    border: 2px solid #f44336;
+}
+
+.button1:hover {
+    background-color: #f44336;
+    color: white;
+}
+
+.input {
+     font-family: Sans-serif;
+     font-size: 15px;
+     color: #000000;
+     line-height: 1;
+     border: 2px solid #444444;
+     border-radius: 4px;
+
+     display: block;
+     width: 40%;
+     height: 35px;
+
+     padding: 5px;
+ }
+.inputE {
+    font-family: Sans-serif;
+    font-size: 15px;
+    color: #000000;
+    line-height: 1;
+    border: 2px solid #444444;
+    border-radius: 4px;
+
+    width: 250px;
+    height: 35px;
+
+    padding: 5px;
+}
+
+.inputBig {
+    font-family: Sans-serif;
+    font-size: 15px;
+    color: #000000;
+    line-height: 1;
+    border-radius: 4px;
+
+    height: 80px;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    border: 2px solid #444444;
+    border-radius: 4px;
+    resize: none;
+
+    display: block;
+    width: 40%;
+
+    padding: 5px;
+}
+
+.inputSmall {
+    font-family: Sans-serif;
+    font-size: 15px;
+    color: #000000;
+    line-height: 1;
+    border: 2px solid #444444;
+    border-radius: 4px;
+
+    width: 10%;
+    height: 20px;
+
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-right: 5px;
+
+    padding: 5px;
+}
+
+inputSmall[type=text]:focus {
+    border: 3px solid red;
+}
+
+#calendar {
+    max-width: 900px;
+    margin: 40px auto;
+}
+
+.search[type=text] {
+    width: 250px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: white;
+    background-image: url('search.png');
+    background-position: 10px 10px;
+    background-repeat: no-repeat;
+    padding: 12px 20px 12px 40px;
+    -webkit-transition: width 0.4s ease-in-out;
+    transition: width 0.4s ease-in-out;
+}
+
+.new {
+    float: left;
+}
+
+.new a {
+    display: block;
+    color: white;
+    text-align: center;
+    text-decoration: #8fdf82;
+}
+
+.for {
+    float: right;
+}
+
+.for a {
+    display: block;
+    color: white;
+    text-align: center;
+    text-decoration: #8fdf82;
+}
+
+.backB {
     font-family: Poppins-Medium, Sans-serif;
     font-size: 20px;
     color: #555555;
@@ -659,7 +706,7 @@ div {
     transition: all 0.4s;
 }
 
-.backButton::before {
+.backB::before {
     content: "";
     display: block;
     position: absolute;
@@ -678,13 +725,17 @@ div {
     transition: all 0.4s;
 }
 
-.backButton:hover {
+.backB:hover {
     color: black;
 }
 
-.backButton:hover:before {
+.backB:hover:before {
     opacity: 0;
 }
 .back {
     text-align: center;
+}
+
+#white {
+    color: white;
 }
